@@ -1,7 +1,8 @@
 BackgroundFetch
 ==============================
 
-Cross-platform background fetch for Cordova / PhoneGap.
+Cross-platform background-fetch for Cordova / PhoneGap ([Tutorial](http://www.doubleencore.com/2013/09/ios-7-background-fetch/)
+
 
 Follows the [Cordova Plugin spec](https://github.com/apache/cordova-plugman/blob/master/plugin_spec.md), so that it works with [Plugman](https://github.com/apache/cordova-plugman).
 
@@ -18,13 +19,27 @@ The plugin creates the object `window.plugins.backgroundFetch` with the methods 
 ```
    phonegap plugin add https://github.com/christocracy/cordova-plugin-background-fetch.git
 ```
+3. Black-magic:  since PhoneGap has no power to modify AppDelegate.m, we have to patch it with a hook-script.
+
+    $ cp plugins/org.transistorsoft.cordova.background-fetch/hooks/after_platform_add/background_fetch.sh ./cordova/hooks/after_platform_add
 
 A full example could be:
 ```
-   var bgFetch = window.plugins.backgroundFetch;
-   bgGeo.configure(successFn, failFn, {
-       // TODO
-   });
+   onDeviceReady: function() {
+        var Fetcher = window.plugins.backgroundFetch;
+        
+        // Your background-fetch handler.
+        var fetchCallback = function() {
+            console.log('BackgroundFetch initiated');
+
+            // perform your ajax request to server here
+            setTimeout(function() {
+                Fetcher.finish();   // <-- N.B. You MUST called #finish so that native-side can invoke the required completion-handler
+            }, 1000);
+        }
+        Fetcher.configure(fetchCallback);
+    }
+
 
 ```
 
