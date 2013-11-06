@@ -13,12 +13,14 @@ The plugin creates the object `window.plugins.backgroundFetch` with the methods 
 
 ## Installing the plugin ##
 
-1. Download the repo using GIT or just a ZIP from Github.
-2. Add the plugin to your project (from the root of your project):
+1.Download the repo using GIT or just a ZIP from Github.
+2.Add the plugin to your project (from the root of your project):
+
 ```
    phonegap plugin add https://github.com/christocracy/cordova-plugin-background-fetch.git
 ```
-3. Black-magic:  since PhoneGap has no power to modify AppDelegate.m, we have to patch it with a hook-script.
+
+3.Black-magic:  since PhoneGap has no power to modify AppDelegate.m, we have to patch it with a hook-script.
 
 ```
     $ cp plugins/org.transistorsoft.cordova.background-fetch/hooks/after_platform_add/background_fetch.sh ./cordova/hooks/after_platform_add
