@@ -28,6 +28,15 @@ The plugin creates the object `window.plugins.backgroundFetch` with the methods 
     $ chmod +x .cordova/hooks/after_platform_add/background_fetch.sh
 ```
 
+An alternative to the hook-script above is to simply copy/paste the following method into your `AppDelegate.m` file:
+
+```
+    -(void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
+    {
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"BackgroundFetch" object:completionHandler];
+    }
+```
+
 ## Example ##
 
 A full example could be:
