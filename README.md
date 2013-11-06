@@ -24,7 +24,8 @@ The plugin creates the object `window.plugins.backgroundFetch` with the methods 
 3.**Black-magic**:  since PhoneGap has no power to modify AppDelegate.m, we have to patch it with a hook-script.  Copy the following script into your project's `./cordova/hooks` folder:
 
 ```
-    $ cp plugins/org.transistorsoft.cordova.background-fetch/hooks/after_platform_add/background_fetch.sh ./cordova/hooks/after_platform_add
+    $ cp plugins/org.transistorsoft.cordova.background-fetch/hooks/after_platform_add/background_fetch.sh .cordova/hooks/after_platform_add/
+    $ chmod +x .cordova/hooks/after_platform_add/background_fetch.sh
 ```
 
 ## Example ##
