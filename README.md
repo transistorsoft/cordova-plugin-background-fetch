@@ -14,6 +14,7 @@ The plugin creates the object `window.plugins.backgroundFetch` with the methods 
 ## Installing the plugin ##
 
 1.Download the repo using GIT or just a ZIP from Github.
+
 2.Add the plugin to your project (from the root of your project):
 
 ```
