@@ -45,6 +45,13 @@ module.exports = {
             'stop',
             []);
     },
+    finish: function(success, failure) {
+        exec(success || function(){},
+            failure || function(){},
+            'BackgroundFetch',
+            'finish',
+            []);
+    },
     test: function(success, failure, config) {
         exec(success || function() {},
             failure || function() {},

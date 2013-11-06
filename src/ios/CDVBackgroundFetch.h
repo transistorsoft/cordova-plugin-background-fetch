@@ -5,17 +5,18 @@
 //
 
 #import <Cordova/CDVPlugin.h>
+#import "AppDelegate.h"
 
 @interface CDVBackgroundFetch : CDVPlugin <UIApplicationDelegate>
 - (void) configure:(CDVInvokedUrlCommand*)command;
 - (void) start:(CDVInvokedUrlCommand*)command;
 - (void) stop:(CDVInvokedUrlCommand*)command;
 - (void) test:(CDVInvokedUrlCommand*)command;
-- (void) sync;
-- (void) onSuspend:(NSNotification *)notification;
-- (void) onResume:(NSNotification *)notification;
+- (void) finish:(CDVInvokedUrlCommand*)command;
 
 @property(nonatomic,assign) BOOL enabled;
+@property(nonatomic,retain) NSString *fetchCallbackId;
+
 
 @end
 

@@ -20,8 +20,9 @@
     <platform name="android">
         
      </platform>          
-
+     
      <platform name="ios">
+
         <!-- required background modes:  App registers for location updates -->
         <config-file target="*-Info.plist" parent="UIBackgroundModes">
             <array>
