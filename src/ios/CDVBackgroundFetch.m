@@ -12,6 +12,7 @@
 @implementation CDVBackgroundFetch
 {
     void (^_completionHandler)(UIBackgroundFetchResult);
+    NSTimer *backgroundTimer;
 }
 
 @synthesize enabled;
@@ -28,7 +29,7 @@
 
 - (void) configure:(CDVInvokedUrlCommand*)command
 {    
-    NSLog(@"CDVBackgroundFetch configure");
+    NSLog(@"- CDVBackgroundFetch configure");
     
     self.fetchCallbackId = command.callbackId;
     
@@ -40,25 +41,34 @@
 
 - (void) start:(CDVInvokedUrlCommand*)command
 {
-    NSLog(@"CDVBackgroundFetch start");
+    NSLog(@"- CDVBackgroundFetch start");
     self.enabled = YES;
 }
 
 - (void) stop:(CDVInvokedUrlCommand*)command
 {
-    NSLog(@"CDVBackgroundFetch stop");
+    NSLog(@"- CDVBackgroundFetch stop");
     self.enabled = NO;
 }
 
 - (void) test:(CDVInvokedUrlCommand*)command
 {
-    NSLog(@"CDVBackgroundFetch test");
+    NSLog(@"- CDVBackgroundFetch test");
 }
 
 -(void) onFetch:(NSNotification *) notification
 {
-    NSLog(@"-------------- CDVBackgroundFetch onFetch");
+    NSLog(@"- CDVBackgroundFetch onFetch");
+    UIApplication *app = [UIApplication sharedApplication];
+    
     _completionHandler = notification.object;
+    // Set a timer to ensure our bgTask is murdered 1s before our remaining time expires.
+    backgroundTimer = [NSTimer scheduledTimerWithTimeInterval:app.backgroundTimeRemaining-1
+        target:self
+        selector:@selector(onTimeExpired:)
+        userInfo:nil
+        repeats:NO];
+
     
     CDVPluginResult* result = nil;
     
@@ -69,13 +79,26 @@
     // Inform javascript a background-fetch event has occurred.
     [self.commandDelegate sendPluginResult:result callbackId:self.fetchCallbackId];
 }
+- (void)onTimeExpired:(NSTimer *)timer
+{
+    NSLog(@"- CDVBackgroundFetch TIME EXPIRED");
+    [self stopBackgroundTask];
+}
 -(void) finish:(CDVInvokedUrlCommand*)command
 {
-    NSLog(@"CDVBackgroundFetch finish");
-    _completionHandler(UIBackgroundFetchResultNewData);
+    NSLog(@"- CDVBackgroundFetch finish");
+    [self stopBackgroundTask];
     
 }
-
+-(void) stopBackgroundTask
+{
+    [backgroundTimer invalidate];
+    backgroundTimer = nil;
+    
+    UIApplication *app = [UIApplication sharedApplication];
+    NSLog(@"- CDVBackgroundFetch stopBackgroundTask (remaining t: %f)", app.backgroundTimeRemaining);
+    _completionHandler(UIBackgroundFetchResultNewData);
+}
 
 // If you don't stopMonitorying when application terminates, the app will be awoken still when a
 // new location arrives, essentially monitoring the user's location even when they've killed the app.
