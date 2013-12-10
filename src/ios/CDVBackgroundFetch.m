@@ -61,23 +61,22 @@
     NSLog(@"- CDVBackgroundFetch onFetch");
     UIApplication *app = [UIApplication sharedApplication];
     
-    _completionHandler = notification.object;
+    _completionHandler = [notification.object copy];
+    
     // Set a timer to ensure our bgTask is murdered 1s before our remaining time expires.
     backgroundTimer = [NSTimer scheduledTimerWithTimeInterval:app.backgroundTimeRemaining-1
-        target:self
-        selector:@selector(onTimeExpired:)
-        userInfo:nil
-        repeats:NO];
-
-    
-    CDVPluginResult* result = nil;
-    
-    result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [result setKeepCallbackAsBool:YES];
-    
+                                                       target:self
+                                                     selector:@selector(onTimeExpired:)
+                                                     userInfo:nil
+                                                      repeats:NO];
     
     // Inform javascript a background-fetch event has occurred.
-    [self.commandDelegate sendPluginResult:result callbackId:self.fetchCallbackId];
+    [self.commandDelegate runInBackground:^{
+        CDVPluginResult* result = nil;
+        result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [result setKeepCallbackAsBool:YES];
+        [self.commandDelegate sendPluginResult:result callbackId:self.fetchCallbackId];
+    }];
 }
 - (void)onTimeExpired:(NSTimer *)timer
 {
@@ -97,7 +96,10 @@
     
     UIApplication *app = [UIApplication sharedApplication];
     NSLog(@"- CDVBackgroundFetch stopBackgroundTask (remaining t: %f)", app.backgroundTimeRemaining);
-    _completionHandler(UIBackgroundFetchResultNewData);
+    if (_completionHandler) {
+        _completionHandler(UIBackgroundFetchResultNewData);
+        _completionHandler = nil;
+    }
 }
 
 // If you don't stopMonitorying when application terminates, the app will be awoken still when a
