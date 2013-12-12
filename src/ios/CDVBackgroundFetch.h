@@ -9,14 +9,6 @@
 
 @interface CDVBackgroundFetch : CDVPlugin <UIApplicationDelegate>
 - (void) configure:(CDVInvokedUrlCommand*)command;
-- (void) start:(CDVInvokedUrlCommand*)command;
-- (void) stop:(CDVInvokedUrlCommand*)command;
-- (void) test:(CDVInvokedUrlCommand*)command;
 - (void) finish:(CDVInvokedUrlCommand*)command;
-
-@property(nonatomic,assign) BOOL enabled;
-@property(nonatomic,retain) NSString *fetchCallbackId;
-
-
 @end
 

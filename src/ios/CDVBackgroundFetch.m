@@ -7,15 +7,12 @@
 #import "CDVBackgroundFetch.h"
 #import <Cordova/CDVJSON.h>
 
-
-
 @implementation CDVBackgroundFetch
 {
     void (^_completionHandler)(UIBackgroundFetchResult);
-    NSTimer *backgroundTimer;
+    BOOL enabled;
+    NSString *fetchCallbackId;
 }
-
-@synthesize enabled;
 
 - (CDVPlugin*) initWithWebView:(UIWebView*) theWebView
 {
@@ -31,72 +28,40 @@
 {    
     NSLog(@"- CDVBackgroundFetch configure");
     
-    self.fetchCallbackId = command.callbackId;
-    
+    fetchCallbackId = command.callbackId;
     [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
-    
     [[UIApplication sharedApplication].delegate self];
      
-}
-
-- (void) start:(CDVInvokedUrlCommand*)command
-{
-    NSLog(@"- CDVBackgroundFetch start");
-    self.enabled = YES;
-}
-
-- (void) stop:(CDVInvokedUrlCommand*)command
-{
-    NSLog(@"- CDVBackgroundFetch stop");
-    self.enabled = NO;
-}
-
-- (void) test:(CDVInvokedUrlCommand*)command
-{
-    NSLog(@"- CDVBackgroundFetch test");
 }
 
 -(void) onFetch:(NSNotification *) notification
 {
     NSLog(@"- CDVBackgroundFetch onFetch");
-    UIApplication *app = [UIApplication sharedApplication];
     
+    if (_completionHandler) {
+        NSLog(@"- CDVBackgroundFetch onFetch found existing completionHandler block!");
+        _completionHandler(UIBackgroundFetchResultNewData);
+    }
     _completionHandler = [notification.object copy];
-    
-    // Set a timer to ensure our bgTask is murdered 1s before our remaining time expires.
-    backgroundTimer = [NSTimer scheduledTimerWithTimeInterval:app.backgroundTimeRemaining-1
-                                                       target:self
-                                                     selector:@selector(onTimeExpired:)
-                                                     userInfo:nil
-                                                      repeats:NO];
     
     // Inform javascript a background-fetch event has occurred.
     [self.commandDelegate runInBackground:^{
         CDVPluginResult* result = nil;
         result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [result setKeepCallbackAsBool:YES];
-        [self.commandDelegate sendPluginResult:result callbackId:self.fetchCallbackId];
+        [self.commandDelegate sendPluginResult:result callbackId:fetchCallbackId];
     }];
-}
-- (void)onTimeExpired:(NSTimer *)timer
-{
-    NSLog(@"- CDVBackgroundFetch TIME EXPIRED");
-    [self stopBackgroundTask];
 }
 -(void) finish:(CDVInvokedUrlCommand*)command
 {
     NSLog(@"- CDVBackgroundFetch finish");
     [self stopBackgroundTask];
-    
 }
 -(void) stopBackgroundTask
 {
-    [backgroundTimer invalidate];
-    backgroundTimer = nil;
-    
     UIApplication *app = [UIApplication sharedApplication];
-    NSLog(@"- CDVBackgroundFetch stopBackgroundTask (remaining t: %f)", app.backgroundTimeRemaining);
     if (_completionHandler) {
+        NSLog(@"- CDVBackgroundFetch stopBackgroundTask (remaining t: %f)", app.backgroundTimeRemaining);
         _completionHandler(UIBackgroundFetchResultNewData);
         _completionHandler = nil;
     }

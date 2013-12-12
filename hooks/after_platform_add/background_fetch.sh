@@ -9,8 +9,16 @@ if pushd platforms/ios 2>/dev/null ; then   # iOS-specific actions...
     sed -i '' 's/@end/\
 -(void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler\
 {\
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"BackgroundFetch" object:completionHandler];\
+    void (^safeHandler)(UIBackgroundFetchResult) = ^(UIBackgroundFetchResult result){\
+        dispatch_async(dispatch_get_main_queue(), ^{\
+            completionHandler(result);\
+        });\
+    };\
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"BackgroundFetch" object:safeHandler];\
 }\
 @end/' $PROJNAME/Classes/AppDelegate.m
     popd
 fi
+
+
+
