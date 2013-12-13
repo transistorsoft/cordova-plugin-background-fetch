@@ -33,6 +33,7 @@
         <config-file target="config.xml" parent="/*">
             <feature name="BackgroundFetch">
                 <param name="ios-package" value="CDVBackgroundFetch"/>
+                <param name="onload" value="true"/>
             </feature>
         </config-file>
 

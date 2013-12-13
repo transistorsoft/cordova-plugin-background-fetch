@@ -12,36 +12,40 @@
     void (^_completionHandler)(UIBackgroundFetchResult);
     BOOL enabled;
     NSString *fetchCallbackId;
+    NSNotification *_notification;
 }
 
-- (CDVPlugin*) initWithWebView:(UIWebView*) theWebView
+- (void)pluginInitialize
 {
     [[NSNotificationCenter defaultCenter] addObserver:self
         selector:@selector(onFetch:)
         name:@"BackgroundFetch"
         object:nil];
-    
-    return self;
 }
 
 - (void) configure:(CDVInvokedUrlCommand*)command
 {    
     NSLog(@"- CDVBackgroundFetch configure");
     
+    UIApplication *app = [UIApplication sharedApplication];
+    
     fetchCallbackId = command.callbackId;
     [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
     [[UIApplication sharedApplication].delegate self];
-     
+    
+    UIApplicationState state = [app applicationState];
+    
+    // Handle case where app was launched due to background-fetch event
+    if (state == UIApplicationStateBackground && _completionHandler && _notification) {
+        [self onFetch:_notification];
+    }
 }
 
 -(void) onFetch:(NSNotification *) notification
 {
     NSLog(@"- CDVBackgroundFetch onFetch");
     
-    if (_completionHandler) {
-        NSLog(@"- CDVBackgroundFetch onFetch found existing completionHandler block!");
-        _completionHandler(UIBackgroundFetchResultNewData);
-    }
+    _notification = notification;
     _completionHandler = [notification.object copy];
     
     // Inform javascript a background-fetch event has occurred.
