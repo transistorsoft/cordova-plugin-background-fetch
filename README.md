@@ -1,8 +1,7 @@
 BackgroundFetch
 ==============================
 
-Cross-platform background-fetch for Cordova / PhoneGap ([Tutorial](http://www.doubleencore.com/2013/09/ios-7-background-fetch/)
-
+Cross-platform background-fetch for Cordova / PhoneGap [Tutorial](http://www.doubleencore.com/2013/09/ios-7-background-fetch/)
 
 Follows the [Cordova Plugin spec](https://github.com/apache/cordova-plugman/blob/master/plugin_spec.md), so that it works with [Plugman](https://github.com/apache/cordova-plugman).
 
@@ -28,13 +27,19 @@ The plugin creates the object `window.plugins.backgroundFetch` with the methods 
     $ chmod +x .cordova/hooks/after_platform_add/background_fetch.sh
 ```
 
-An alternative to the hook-script above is to simply copy/paste the following method into your `AppDelegate.m` file:
+An alternative to the hook-script above (and if you keep your /platforms in the repo--I don't) is to simply copy/paste the following method into your `AppDelegate.m` file:
 
 ```
     -(void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
     {
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"BackgroundFetch" object:completionHandler];
+        void (^safeHandler)(UIBackgroundFetchResult) = ^(UIBackgroundFetchResult result){
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completionHandler(result);
+            });
+        };
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"BackgroundFetch" object:safeHandler];
     }
+
 ```
 
 ## Example ##
@@ -49,9 +54,14 @@ A full example could be:
             console.log('BackgroundFetch initiated');
 
             // perform your ajax request to server here
-            setTimeout(function() {
-                Fetcher.finish();   // <-- N.B. You MUST called #finish so that native-side can invoke the required completion-handler
-            }, 1000);
+            $.get({
+                url: '/heartbeat.json',
+                callback: function(response) {
+                    // process your response and whatnot.
+
+                    Fetcher.finish();   // <-- N.B. You MUST called #finish so that native-side can signal completion of the background-thread to the os.
+                }
+            });
         }
         Fetcher.configure(fetchCallback);
     }
@@ -60,6 +70,8 @@ A full example could be:
 ```
 
 ## iOS
+
+Implements [performFetchWithCompletionHandler](https://developer.apple.com/library/ios/documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/occ/intfm/UIApplicationDelegate/application:performFetchWithCompletionHandler:), firing a custom event subscribed-to in cordova plugin.
 
 ** TODO chris ##
 
@@ -71,7 +83,8 @@ A full example could be:
 
 The MIT License
 
-Copyright (c) 2013 Chris Scott and Brian Samson
+Copyright (c) 2013 Chris Scott <chris@transistorsoft.com>
+http://transistorsoft.com
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
