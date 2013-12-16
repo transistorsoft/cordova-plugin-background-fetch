@@ -12,10 +12,6 @@
         <engine name="cordova" version=">=3.0.0" />
     </engines>
 
-    <js-module src="www/BackgroundFetch.js" name="BackgroundFetch">
-        <clobbers target="plugins.backgroundFetch" />
-    </js-module>
-
     <!-- android -->
     <platform name="android">
         
@@ -39,6 +35,10 @@
 
         <source-file src="src/ios/CDVBackgroundFetch.m" />
         <source-file src="src/ios/CDVBackgroundFetch.h" />
+
+        <js-module src="www/BackgroundFetch.js" name="BackgroundFetch">
+            <clobbers target="plugins.backgroundFetch" />
+        </js-module>
      </platform>          
 
 </plugin>
