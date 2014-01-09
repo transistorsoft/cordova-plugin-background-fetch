@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
-           id="org.transistorsoft.cordova.background-fetch"
-      version="0.1.0">
+           id="org.transistorsoft.cordova.plugin.background.fetch"
+      version="2.0.0">
     <name>CDVBackgroundFetch</name>
     <description>Cordova Background Fetch Plugin</description>
     <license>MIT</license>
@@ -12,12 +12,30 @@
         <engine name="cordova" version=">=3.0.0" />
     </engines>
 
-    <!-- android -->
+    <!-- Load in the core background service -->
+    <dependency id="com.red_folder.phonegap.plugin.backgroundservice" url="https://github.com/Red-Folder/bgs-core.git"/>
+
     <platform name="android">
+
+        <js-module src="www/BackgroundFetchService.js" name="BackgroundFetchService">
+            <clobbers target="plugins.backgroundFetch" />
+        </js-module>
+
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+  
+            <service android:name="org.transistorsoft.cordova.plugin.background.fetch.BackgroundFetchService">
+                <intent-filter>         
+                    <action android:name="org.transistorsoft.cordova.plugin.background.fetch.BackgroundFetchService"/> 
+                </intent-filter>     
+            </service>
+            
+        </config-file>
         
-     </platform>          
-     
-     <platform name="ios">
+        <source-file src="src/android/BackgroundFetchService.java" target-dir="src/org/transistorsoft/cordova/plugin/background/fetch" />
+    </platform>
+
+
+    <platform name="ios">
 
         <!-- required background modes:  App registers for location updates -->
         <config-file target="*-Info.plist" parent="UIBackgroundModes">
