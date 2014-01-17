@@ -6,6 +6,21 @@
 //
 #import "CDVBackgroundFetch.h"
 #import <Cordova/CDVJSON.h>
+#import "AppDelegate.h"
+
+@implementation AppDelegate(AppDelegate)
+
+-(void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
+{
+    void (^safeHandler)(UIBackgroundFetchResult) = ^(UIBackgroundFetchResult result){
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completionHandler(result);
+        });
+    };
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"BackgroundFetch" object:safeHandler];
+}
+
+@end
 
 @implementation CDVBackgroundFetch
 {
