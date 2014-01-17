@@ -20,28 +20,6 @@ The plugin creates the object `window.plugins.backgroundFetch` with the methods 
    phonegap plugin add https://github.com/christocracy/cordova-plugin-background-fetch.git
 ```
 
-3.**Black-magic**:  since PhoneGap has no power to modify AppDelegate.m, we have to patch it with a hook-script.  Copy the following script into your project's `./cordova/hooks` folder:
-
-```
-    $ cp plugins/org.transistorsoft.cordova.background-fetch/hooks/after_platform_add/background_fetch.sh .cordova/hooks/after_platform_add/
-    $ chmod +x .cordova/hooks/after_platform_add/background_fetch.sh
-```
-
-An alternative to the hook-script above (and if you keep your /platforms in the repo--I don't) is to simply copy/paste the following method into your `AppDelegate.m` file:
-
-```
-    -(void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
-    {
-        void (^safeHandler)(UIBackgroundFetchResult) = ^(UIBackgroundFetchResult result){
-            dispatch_async(dispatch_get_main_queue(), ^{
-                completionHandler(result);
-            });
-        };
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"BackgroundFetch" object:safeHandler];
-    }
-
-```
-
 ## Example ##
 
 A full example could be:

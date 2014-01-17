@@ -51,6 +51,7 @@
             </feature>
         </config-file>
 
+        <source-file src="src/ios/CDVBackgroundFetch+AppDelegate.m" />
         <source-file src="src/ios/CDVBackgroundFetch.m" />
         <source-file src="src/ios/CDVBackgroundFetch.h" />
 

@@ -32,18 +32,13 @@ module.exports = {
              []);
     },
     start: function(success, failure, config) {
-        exec(success || function() {},
-             failure || function() {},
-             'BackgroundFetch',
-             'start',
-             []);
+        // No implementation necessary for ios
     },
     stop: function(success, failure, config) {
-        exec(success || function() {},
-            failure || function() {},
-            'BackgroundFetch',
-            'stop',
-            []);
+        // No implementation necessary for ios
+    },
+    getStatus: function() {
+        // No implementation necessary for ios
     },
     finish: function(success, failure) {
         exec(success || function(){},
@@ -51,14 +46,6 @@ module.exports = {
             'BackgroundFetch',
             'finish',
             []);
-    },
-    test: function(success, failure, config) {
-        exec(success || function() {},
-            failure || function() {},
-            'BackgroundFetch',
-            'test',
-            []);
     }
 };
-
 
