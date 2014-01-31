@@ -52,7 +52,7 @@
         </config-file>
 
         <source-file src="src/ios/CDVBackgroundFetch.m" />
-        <source-file src="src/ios/CDVBackgroundFetch.h" />
+        <header-file src="src/ios/CDVBackgroundFetch.h" />
 
         <js-module src="www/BackgroundFetch.js" name="BackgroundFetch">
             <clobbers target="plugins.backgroundFetch" />
