@@ -42,12 +42,15 @@ FetchService.configure = function(successCallback, failureCallback, config) {
         alert('BackgroundFetchService must be configured with a successCallback');
         return false;
     }
+    config = config || {};
+
     fetchSuccessCallback = successCallback;
     fetchFailureCallback = failureCallback || function() {
         alert('BackgroundFetchService ERROR');
     };
 
-    fetchTimeout = parseFloat(config.timeout, 10) * 60 * 1000;   // 15 minutes worth of milliseconds.
+    var timeout = config.timeout || 15;
+    fetchTimeout = parseFloat(timeout, 10) * 60 * 1000;   // 15 minutes worth of milliseconds.
 
     this.registerForBootStart(function() {
         console.log('- [js]BackgroundFetchService registered for boot-start');
