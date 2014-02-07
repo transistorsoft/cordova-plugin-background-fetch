@@ -24,7 +24,18 @@
 */
 var exec = require("cordova/exec");
 module.exports = {
-    configure: function(success, failure, config) {
+    /**
+    * @property {Boolean} flag to determine if a current fetch operation is active
+    */
+    isActive: false,
+
+    configure: function(callback, failure, config) {
+        var me = this;
+        // wrap the supplied callback so we can set isActive flag.
+        var success = function() {
+            me.isActive = true;
+            callback.apply(me, arguments);    
+        };
         exec(success || function() {},
              failure || function() {},
              'BackgroundFetch',
@@ -46,6 +57,7 @@ module.exports = {
             'BackgroundFetch',
             'finish',
             []);
+        this.isActive = false;
     }
 };
 
