@@ -44,9 +44,15 @@
     
     UIApplication *app = [UIApplication sharedApplication];
     
+    if (![app respondsToSelector:@selector(setMinimumBackgroundFetchInterval:)]) {
+        NSLog(@" background fetch unsupported");
+        return;
+    }
+    
     fetchCallbackId = command.callbackId;
-    [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
-    [[UIApplication sharedApplication].delegate self];
+    
+    [app setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
+    [app.delegate self];
     
     UIApplicationState state = [app applicationState];
     
@@ -80,7 +86,7 @@
 {
     UIApplication *app = [UIApplication sharedApplication];
     
-    float finishTimer = (app.backgroundTimeRemaining > 20.0) ? 20.0 : app.backgroundTimeRemaining;
+    float finishTimer = (app.backgroundTimeRemaining > 25.0) ? 25.0 : app.backgroundTimeRemaining;
     
     [NSTimer scheduledTimerWithTimeInterval:finishTimer
         target:self
