@@ -26,7 +26,6 @@
 {
     void (^_completionHandler)(UIBackgroundFetchResult);
     BOOL enabled;
-    NSString *fetchCallbackId;
     NSNotification *_notification;
 }
 
@@ -49,7 +48,7 @@
         return;
     }
     
-    fetchCallbackId = command.callbackId;
+    self.fetchCallbackId = command.callbackId;
     
     [app setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
     [app.delegate self];
@@ -65,7 +64,9 @@
 -(void) onFetch:(NSNotification *) notification
 {
     NSLog(@"- CDVBackgroundFetch onFetch");
-    
+    if (!self.fetchCallbackId) {
+        return;
+    }
     _notification = notification;
     _completionHandler = [notification.object copy];
     
@@ -74,7 +75,7 @@
         CDVPluginResult* result = nil;
         result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [result setKeepCallbackAsBool:YES];
-        [self.commandDelegate sendPluginResult:result callbackId:fetchCallbackId];
+        [self.commandDelegate sendPluginResult:result callbackId:self.fetchCallbackId];
     }];
 }
 -(void) finish:(CDVInvokedUrlCommand*)command
