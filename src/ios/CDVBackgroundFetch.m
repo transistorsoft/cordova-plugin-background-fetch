@@ -28,6 +28,7 @@
     BOOL enabled;
     NSNotification *_notification;
 }
+@synthesize fetchCallbackId;
 
 - (void)pluginInitialize
 {
