@@ -39,23 +39,23 @@
 }
 
 - (void) configure:(CDVInvokedUrlCommand*)command
-{    
+{
     NSLog(@"- CDVBackgroundFetch configure");
-    
+
     UIApplication *app = [UIApplication sharedApplication];
-    
+
     if (![app respondsToSelector:@selector(setMinimumBackgroundFetchInterval:)]) {
         NSLog(@" background fetch unsupported");
         return;
     }
-    
+
     self.fetchCallbackId = command.callbackId;
-    
+
     [app setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
     [app.delegate self];
-    
+
     UIApplicationState state = [app applicationState];
-    
+
     // Handle case where app was launched due to background-fetch event
     if (state == UIApplicationStateBackground && _completionHandler && _notification) {
         [self onFetch:_notification];
@@ -70,7 +70,8 @@
     }
     _notification = notification;
     _completionHandler = [notification.object copy];
-    
+    UIApplication *app = [UIApplication sharedApplication];
+
     // Inform javascript a background-fetch event has occurred.
     [self.commandDelegate runInBackground:^{
         CDVPluginResult* result = nil;
@@ -78,24 +79,27 @@
         [result setKeepCallbackAsBool:YES];
         [self.commandDelegate sendPluginResult:result callbackId:self.fetchCallbackId];
     }];
-}
--(void) finish:(CDVInvokedUrlCommand*)command
-{
-    NSLog(@"- CDVBackgroundFetch finish");
-    [self doFinish];
-}
--(void) doFinish
-{
-    UIApplication *app = [UIApplication sharedApplication];
-    
+
     float finishTimer = (app.backgroundTimeRemaining > 25.0) ? 25.0 : app.backgroundTimeRemaining;
-    
     [NSTimer scheduledTimerWithTimeInterval:finishTimer
         target:self
         selector:@selector(stopBackgroundTask:)
         userInfo:nil
         repeats:NO];
 }
+
+-(void) finish:(CDVInvokedUrlCommand*)command
+{
+    NSLog(@"- CDVBackgroundFetch finish");
+
+    float finishTimer = 0;
+    [NSTimer scheduledTimerWithTimeInterval:finishTimer
+        target:self
+        selector:@selector(stopBackgroundTask:)
+        userInfo:nil
+        repeats:NO];
+}
+
 -(void) stopBackgroundTask:(NSTimer*)timer
 {
     UIApplication *app = [UIApplication sharedApplication];
@@ -109,9 +113,9 @@
 // If you don't stopMonitorying when application terminates, the app will be awoken still when a
 // new location arrives, essentially monitoring the user's location even when they've killed the app.
 // Might be desirable in certain apps.
-- (void)applicationWillTerminate:(UIApplication *)application 
+- (void)applicationWillTerminate:(UIApplication *)application
 {
-    
+
 }
 
 - (void)dealloc
