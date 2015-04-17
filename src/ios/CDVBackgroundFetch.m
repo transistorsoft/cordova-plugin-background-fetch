@@ -82,22 +82,6 @@
 -(void) finish:(CDVInvokedUrlCommand*)command
 {
     NSLog(@"- CDVBackgroundFetch finish");
-    [self doFinish];
-}
--(void) doFinish
-{
-    UIApplication *app = [UIApplication sharedApplication];
-    
-    float finishTimer = (app.backgroundTimeRemaining > 25.0) ? 25.0 : app.backgroundTimeRemaining;
-    
-    [NSTimer scheduledTimerWithTimeInterval:finishTimer
-        target:self
-        selector:@selector(stopBackgroundTask:)
-        userInfo:nil
-        repeats:NO];
-}
--(void) stopBackgroundTask:(NSTimer*)timer
-{
     UIApplication *app = [UIApplication sharedApplication];
     if (_completionHandler) {
         NSLog(@"- CDVBackgroundFetch stopBackgroundTask (remaining t: %f)", app.backgroundTimeRemaining);
