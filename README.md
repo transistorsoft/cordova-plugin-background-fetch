@@ -1,7 +1,9 @@
 BackgroundFetch
 ==============================
 
-Cross-platform background-fetch for Cordova / PhoneGap [Tutorial](http://www.doubleencore.com/2013/09/ios-7-background-fetch/)
+iOS [Background Fetch](https://developer.apple.com/library/ios/documentation/UIKit/Reference/UIApplication_Class/#//apple_ref/occ/instm/UIApplication/setMinimumBackgroundFetchInterval:) Implementation
+
+[Tutorial](http://www.doubleencore.com/2013/09/ios-7-background-fetch/)
 
 Follows the [Cordova Plugin spec](https://github.com/apache/cordova-plugman/blob/master/plugin_spec.md), so that it works with [Plugman](https://github.com/apache/cordova-plugman).
 
