@@ -12,7 +12,7 @@ Follows the [Cordova Plugin spec](https://github.com/apache/cordova-plugman/blob
 This plugin leverages Cordova/PhoneGap's [require/define functionality used for plugins](http://simonmacdonald.blogspot.ca/2012/08/so-you-wanna-write-phonegap-200-android.html). 
 
 ## Using the plugin ##
-The plugin creates the object `window.plugins.backgroundFetch` with the methods `configure(success, fail, option)`, `start(success, fail)` and `stop(success, fail). 
+The plugin creates the object `window.BackgroundFetch` with the methods `configure(success, fail, option)`, `start(success, fail)` and `stop(success, fail). 
 
 ## Installing the plugin ##
 
@@ -35,7 +35,7 @@ Set `true` to cease background-fetch from operating after user "closes" the app.
 A full example could be:
 ```
    onDeviceReady: function() {
-        var Fetcher = window.plugins.backgroundFetch;
+        var Fetcher = window.BackgroundFetch;
         
         // Your background-fetch handler.
         var fetchCallback = function() {
