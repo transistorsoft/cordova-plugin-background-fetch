@@ -30,7 +30,8 @@ module.exports = {
     isActive: false,
 
     configure: function(callback, failure, config) {
-        var me = this;
+        var me = this,
+            config = config || {};
         // wrap the supplied callback so we can set isActive flag.
         var success = function() {
             me.isActive = true;
@@ -40,7 +41,7 @@ module.exports = {
              failure || function() {},
              'BackgroundFetch',
              'configure',
-             []);
+             [config]);
     },
     start: function(success, failure, config) {
         // No implementation necessary for ios

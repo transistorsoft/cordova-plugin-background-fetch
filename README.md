@@ -20,6 +20,12 @@ The plugin creates the object `window.plugins.backgroundFetch` with the methods 
    phonegap plugin add https://github.com/christocracy/cordova-plugin-background-fetch.git
 ```
 
+## Config 
+
+####`@param {Boolean} stopOnTerminate`
+
+Set `true` to cease background-fetch from operating after user "closes" the app.  Defaults to `false`.
+
 ## Example ##
 
 A full example could be:
@@ -41,7 +47,12 @@ A full example could be:
                 }
             });
         }
-        Fetcher.configure(fetchCallback);
+        var failureCallback = function() {
+            console.log('- BackgroundFetch failed');
+        };
+        Fetcher.configure(fetchCallback, failureCallback, {
+            stopOnTerminate: false  // <-- false is default
+        });
     }
 
 
@@ -51,11 +62,7 @@ A full example could be:
 
 Implements [performFetchWithCompletionHandler](https://developer.apple.com/library/ios/documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/occ/intfm/UIApplicationDelegate/application:performFetchWithCompletionHandler:), firing a custom event subscribed-to in cordova plugin.
 
-** TODO chris ##
 
-## Android
-
-** TODO Brian ##
 
 ## Licence ##
 
