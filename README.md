@@ -17,7 +17,7 @@ The plugin creates the object `window.plugins.backgroundFetch` with the methods 
 2.Add the plugin to your project (from the root of your project):
 
 ```
-   phonegap plugin add https://github.com/christocracy/cordova-plugin-background-fetch.git
+   $ cordova plugin add https://github.com/christocracy/cordova-plugin-background-fetch.git
 ```
 
 ## Config 
