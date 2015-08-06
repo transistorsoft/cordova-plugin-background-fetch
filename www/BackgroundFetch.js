@@ -43,15 +43,6 @@ module.exports = {
              'configure',
              [config]);
     },
-    start: function(success, failure, config) {
-        // No implementation necessary for ios
-    },
-    stop: function(success, failure, config) {
-        // No implementation necessary for ios
-    },
-    getStatus: function() {
-        // No implementation necessary for ios
-    },
     finish: function(success, failure) {
         exec(success || function(){},
             failure || function(){},
