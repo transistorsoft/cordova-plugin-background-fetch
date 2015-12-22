@@ -73,9 +73,9 @@
 -(void) onFetch:(NSNotification *) notification
 {
     NSLog(@"- CDVBackgroundFetch onFetch");
-    if (!self.fetchCallbackId) {
-        return;
-    }
+    //if (!self.fetchCallbackId) {
+    //    return;
+    //}
     _notification = notification;
     _completionHandler = [notification.object copy];
     
