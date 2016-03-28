@@ -5,7 +5,6 @@
 //  Largely based upon http://www.mindsizzlers.com/2011/07/ios-background-location/
 //
 #import "CDVBackgroundFetch.h"
-#import <Cordova/CDVJSON.h>
 #import "AppDelegate.h"
 
 @implementation AppDelegate(AppDelegate)
@@ -27,7 +26,7 @@
     void (^_completionHandler)(UIBackgroundFetchResult);
     BOOL enabled;
     BOOL stopOnTerminate;
-
+    
     NSNotification *_notification;
 }
 @synthesize fetchCallbackId;
@@ -35,7 +34,7 @@
 - (void)pluginInitialize
 {
     stopOnTerminate = NO;
-
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
         selector:@selector(onFetch:)
         name:@"BackgroundFetch"
@@ -73,12 +72,16 @@
 -(void) onFetch:(NSNotification *) notification
 {
     NSLog(@"- CDVBackgroundFetch onFetch");
-    if (!self.fetchCallbackId) {
-        return;
-    }
+
     _notification = notification;
     _completionHandler = [notification.object copy];
     
+    // If onFetch is called and we don't have our Cordova callback registered yet, we were probably booted due to a background-fetch event.
+    // Just return and wait for the plugin to be configured.  We'll detect that in #configure method and execute the callback once it's been registered.
+    if (!self.fetchCallbackId) {
+        return;
+    }
+
     // Inform javascript a background-fetch event has occurred.
     [self.commandDelegate runInBackground:^{
         CDVPluginResult* result = nil;
@@ -90,9 +93,9 @@
 -(void) finish:(CDVInvokedUrlCommand*)command
 {
     NSLog(@"- CDVBackgroundFetch finish");
-    UIApplication *app = [UIApplication sharedApplication];
+
     if (_completionHandler) {
-        NSLog(@"- CDVBackgroundFetch stopBackgroundTask (remaining t: %f)", app.backgroundTimeRemaining);
+        NSLog(@"- CDVBackgroundFetch stopBackgroundTask");
         _completionHandler(UIBackgroundFetchResultNewData);
         _completionHandler = nil;
     }
