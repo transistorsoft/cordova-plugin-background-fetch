@@ -2,8 +2,8 @@
 
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    id="cordova-plugin-background-fetch""
-    version="3.0.0">
+    id="cordova-plugin-background-fetch"
+    version="3.0.1">
     <name>CDVBackgroundFetch</name>
     <description>Cordova Background Fetch Plugin</description>
     <license>MIT</license>
