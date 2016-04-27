@@ -1,6 +1,7 @@
 {
   "name": "cordova-plugin-background-fetch",
-  "version": "3.0.1",
+  "version": "3.0.2",
+  "description": "Cordova implementation of iOS Background Fetch API",
   "cordova": {
     "id": "cordova-plugin-background-fetch",
     "platforms": [
@@ -9,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/christocracy/cordova-plugin-background-fetch.git"
+    "url": "https://github.com/christocracy/cordova-plugin-background-fetch.git"
   },
   "engines": [
     {
