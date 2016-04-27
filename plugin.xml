@@ -2,7 +2,7 @@
 
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    id="org.transistorsoft.cordova.plugin.background.fetch"
+    id="cordova-plugin-background-fetch""
     version="2.0.6">
     <name>CDVBackgroundFetch</name>
     <description>Cordova Background Fetch Plugin</description>
@@ -12,6 +12,10 @@
     <engines>
         <engine name="cordova" version=">=3.0.0" />
     </engines>
+
+    <js-module src="www/BackgroundFetch.js" name="BackgroundFetch">
+        <clobbers target="window.BackgroundFetch" />
+    </js-module>
 
     <platform name="ios">
 
@@ -31,10 +35,6 @@
 
         <source-file src="src/ios/CDVBackgroundFetch.m" />
         <header-file src="src/ios/CDVBackgroundFetch.h" />
-
-        <js-module src="www/BackgroundFetch.js" name="BackgroundFetch">
-            <clobbers target="window.BackgroundFetch" />
-        </js-module>
-     </platform>          
+    </platform 
 
 </plugin>
