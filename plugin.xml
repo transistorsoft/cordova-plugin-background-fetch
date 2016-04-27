@@ -37,6 +37,6 @@
 
         <source-file src="src/ios/CDVBackgroundFetch.m" />
         <header-file src="src/ios/CDVBackgroundFetch.h" />
-    </platform 
+    </platform>
 
 </plugin>
