@@ -28,10 +28,15 @@ module.exports = {
     * @property {Boolean} flag to determine if a current fetch operation is active
     */
     isActive: false,
-
+    /**
+     * @property {Object} config The config supplied to #configure
+     */
+    config: undefined,
+    
     configure: function(callback, failure, config) {
         var me = this,
             config = config || {};
+        this.config = config;
         // wrap the supplied callback so we can set isActive flag.
         var success = function() {
             me.isActive = true;
