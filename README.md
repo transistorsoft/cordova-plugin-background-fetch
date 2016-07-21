@@ -68,6 +68,12 @@ Implements [performFetchWithCompletionHandler](https://developer.apple.com/libra
 
 
 
+## Tools
+
+Use the [cordova-diagnostic-plugin](https://github.com/dpa99c/cordova-diagnostic-plugin) to diagnose whether the user has enabled background fetch in device app settings.
+
+
+
 ## Licence ##
 
 The MIT License
