@@ -12,7 +12,17 @@ Follows the [Cordova Plugin spec](https://github.com/apache/cordova-plugman/blob
 This plugin leverages Cordova/PhoneGap's [require/define functionality used for plugins](http://simonmacdonald.blogspot.ca/2012/08/so-you-wanna-write-phonegap-200-android.html). 
 
 ## Using the plugin ##
-The plugin creates the object `window.BackgroundFetch` with the methods `configure(success, fail, option)`, `start(success, fail)` and `stop(success, fail). 
+The plugin creates the object `window.BackgroundFetch` with the following methods:
+
+* `configure(callback, failure, config)`
+* `finish(success, failure)`
+
+Additionally, the following properties are available:
+
+* `config` - the value supplied as the third argument to the `configure` method above
+* `isActive` - The current state of the plugin. Will be set to `true` after `configure` is successfully called and `false` after `finish`.
+
+**Note** for those upgrading from a previous version, the `start(success, fail)` and `stop(success, fail)` functions have been removed
 
 ## Installing the plugin ##
 
