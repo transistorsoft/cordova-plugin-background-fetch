@@ -14,13 +14,13 @@ This plugin leverages Cordova/PhoneGap's [require/define functionality used for 
 ## Using the plugin ##
 The plugin creates the object `window.BackgroundFetch` with the following methods:
 
-* `configure(callback, failure, config)`
-* `finish(success, failure)`
+* `configure(callback, failure, config)` : Used to Initialize the BackgroundFetch plugin. 
+* `finish(success, failure)` : Used to indicate that you have finished executing your code. Must be called to signal to the OS that you are done
 
 Additionally, the following properties are available:
 
-* `config` - the value supplied as the third argument to the `configure` method above
-* `isActive` - The current state of the plugin. Will be set to `true` after `configure` is successfully called and `false` after `finish`.
+* `config` - will be value supplied as the third argument to the `configure` method above
+* `isActive` - Represents whether there is a currently active backgroundFetch operation running.
 
 **Note** for those upgrading from a previous version, the `start(success, fail)` and `stop(success, fail)` functions have been removed
 
