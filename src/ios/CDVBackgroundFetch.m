@@ -6,69 +6,64 @@
 //
 #import "CDVBackgroundFetch.h"
 #import "AppDelegate.h"
+#import <TSBackgroundFetch/TSBackgroundFetch.h>
 
 @implementation AppDelegate(AppDelegate)
 
 -(void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
-    void (^safeHandler)(UIBackgroundFetchResult) = ^(UIBackgroundFetchResult result){
-        dispatch_async(dispatch_get_main_queue(), ^{
-            completionHandler(result);
-        });
-    };
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"BackgroundFetch" object:safeHandler];
+    NSLog(@"*** AppDelegate Rx BackgroundFetch ***");
+    
+    TSBackgroundFetch *fetchManager = [TSBackgroundFetch sharedInstance];
+    [fetchManager performFetchWithCompletionHandler:completionHandler];    
 }
 
 @end
 
 @implementation CDVBackgroundFetch
 {
-    void (^_completionHandler)(UIBackgroundFetchResult);
     BOOL enabled;
     BOOL stopOnTerminate;
-    
-    NSNotification *_notification;
 }
-@synthesize fetchCallbackId;
 
 - (void)pluginInitialize
 {
-    stopOnTerminate = NO;
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-        selector:@selector(onFetch:)
-        name:@"BackgroundFetch"
-        object:nil];
+    stopOnTerminate = NO;    
 }
 
 - (void) configure:(CDVInvokedUrlCommand*)command
 {    
     NSLog(@"- CDVBackgroundFetch configure");
-    UIApplication *app = [UIApplication sharedApplication];
-
-    if (![app respondsToSelector:@selector(setMinimumBackgroundFetchInterval:)]) {
-        NSLog(@" background fetch unsupported");
-        return;
-    }
     
+    TSBackgroundFetch *fetchManager = [TSBackgroundFetch sharedInstance];
+
     NSDictionary *config = [command.arguments objectAtIndex:0];
+    
     if (config[@"stopOnTerminate"]) {
         stopOnTerminate = [[config objectForKey:@"stopOnTerminate"] boolValue];
     }
-
-    self.fetchCallbackId = command.callbackId;
-    
-    [app setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalMinimum];
-    [app.delegate self];
-    
-    UIApplicationState state = [app applicationState];
-    
-    // Handle case where app was launched due to background-fetch event
-    if (state == UIApplicationStateBackground && _completionHandler && _notification) {
-        [self onFetch:_notification];
+        
+    if ([fetchManager start]) {
+        void (^handler)();    
+        handler = ^void(void){
+            NSLog(@"- CDVBackgroundFetch Rx Fetch Event");
+            CDVPluginResult* result = nil;
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+            [result setKeepCallbackAsBool:YES];
+            [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+        };
+        [fetchManager addListener:handler];
+    } else {
+        NSLog(@"- CDVBackgroundFetch failed to start");
+        //command.callbackId.error("BackgroundFetch not supported");
+        CDVPluginResult* result = nil;
+        result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+        [result setKeepCallbackAsBool:NO];
+        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
     }
 }
 
+/*
 -(void) onFetch:(NSNotification *) notification
 {
     NSLog(@"- CDVBackgroundFetch onFetch");
@@ -80,25 +75,14 @@
     // Just return and wait for the plugin to be configured.  We'll detect that in #configure method and execute the callback once it's been registered.
     if (!self.fetchCallbackId) {
         return;
-    }
-
-    // Inform javascript a background-fetch event has occurred.
-    [self.commandDelegate runInBackground:^{
-        CDVPluginResult* result = nil;
-        result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        [result setKeepCallbackAsBool:YES];
-        [self.commandDelegate sendPluginResult:result callbackId:self.fetchCallbackId];
-    }];
+    }  
 }
+*/
 -(void) finish:(CDVInvokedUrlCommand*)command
 {
     NSLog(@"- CDVBackgroundFetch finish");
-
-    if (_completionHandler) {
-        NSLog(@"- CDVBackgroundFetch stopBackgroundTask");
-        _completionHandler(UIBackgroundFetchResultNewData);
-        _completionHandler = nil;
-    }
+    TSBackgroundFetch *fetchManager = [TSBackgroundFetch sharedInstance];
+    [fetchManager finish:UIBackgroundFetchResultNewData];
 }
 
 /**
@@ -109,8 +93,8 @@
     NSLog(@"- CDVBackgroundFetch onAppTerminate");
     if (stopOnTerminate) {
         NSLog(@"- stopping background-fetch");
-        UIApplication *app = [UIApplication sharedApplication];
-        [app setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalNever];
+        TSBackgroundFetch *fetchManager = [TSBackgroundFetch sharedInstance];
+        [fetchManager stop];
     }
 }
 
@@ -124,7 +108,7 @@
 
 - (void)dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+
 }
 
 @end

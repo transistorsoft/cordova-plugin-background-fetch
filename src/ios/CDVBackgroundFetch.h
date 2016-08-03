@@ -7,8 +7,7 @@
 #import <Cordova/CDVPlugin.h>
 #import "AppDelegate.h"
 
-@interface CDVBackgroundFetch : CDVPlugin <UIApplicationDelegate>
-@property (nonatomic, strong) NSString* fetchCallbackId;
+@interface CDVBackgroundFetch : CDVPlugin
 - (void) configure:(CDVInvokedUrlCommand*)command;
 - (void) finish:(CDVInvokedUrlCommand*)command;
 
