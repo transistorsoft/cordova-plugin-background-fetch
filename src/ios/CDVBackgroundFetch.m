@@ -12,8 +12,7 @@
 
 -(void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
-    NSLog(@"*** AppDelegate Rx BackgroundFetch ***");
-    
+    NSLog(@"CDVBackgroundFetch AppDelegate received fetch event");
     TSBackgroundFetch *fetchManager = [TSBackgroundFetch sharedInstance];
     [fetchManager performFetchWithCompletionHandler:completionHandler];    
 }
@@ -23,27 +22,30 @@
 @implementation CDVBackgroundFetch
 {
     BOOL enabled;
-    BOOL stopOnTerminate;
+    BOOL configured;
 }
 
 - (void)pluginInitialize
 {
-    stopOnTerminate = NO;    
+    configured = NO;
 }
 
 - (void) configure:(CDVInvokedUrlCommand*)command
 {    
+    if (configured) {
+        NSLog(@"- CDVBackgroundFetch already configured");
+        return;
+    }
     NSLog(@"- CDVBackgroundFetch configure");
     
     TSBackgroundFetch *fetchManager = [TSBackgroundFetch sharedInstance];
-
+    
     NSDictionary *config = [command.arguments objectAtIndex:0];
     
-    if (config[@"stopOnTerminate"]) {
-        stopOnTerminate = [[config objectForKey:@"stopOnTerminate"] boolValue];
-    }
-        
+    [fetchManager configure:config];
+    
     if ([fetchManager start]) {
+        configured = YES;
         void (^handler)();    
         handler = ^void(void){
             NSLog(@"- CDVBackgroundFetch Rx Fetch Event");
@@ -55,7 +57,6 @@
         [fetchManager addListener:handler];
     } else {
         NSLog(@"- CDVBackgroundFetch failed to start");
-        //command.callbackId.error("BackgroundFetch not supported");
         CDVPluginResult* result = nil;
         result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
         [result setKeepCallbackAsBool:NO];
@@ -63,47 +64,35 @@
     }
 }
 
-/*
--(void) onFetch:(NSNotification *) notification
+-(void) start:(CDVInvokedUrlCommand*)command
 {
-    NSLog(@"- CDVBackgroundFetch onFetch");
+    NSLog(@"- CDVBackgroundFetch start");
+    TSBackgroundFetch *fetchManager = [TSBackgroundFetch sharedInstance];
 
-    _notification = notification;
-    _completionHandler = [notification.object copy];
-    
-    // If onFetch is called and we don't have our Cordova callback registered yet, we were probably booted due to a background-fetch event.
-    // Just return and wait for the plugin to be configured.  We'll detect that in #configure method and execute the callback once it's been registered.
-    if (!self.fetchCallbackId) {
-        return;
-    }  
+    CDVPluginResult* result = nil;
+    if ([fetchManager start]) {
+        result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    } else {
+        result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
+    }
+    [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+
 }
-*/
+-(void) stop:(CDVInvokedUrlCommand*)command
+{
+    NSLog(@"- CDVBackgroundFetch stop");
+    TSBackgroundFetch *fetchManager = [TSBackgroundFetch sharedInstance];
+    [fetchManager stop];
+    CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+}
 -(void) finish:(CDVInvokedUrlCommand*)command
 {
     NSLog(@"- CDVBackgroundFetch finish");
     TSBackgroundFetch *fetchManager = [TSBackgroundFetch sharedInstance];
     [fetchManager finish:UIBackgroundFetchResultNewData];
-}
-
-/**
- * Termination. Checks to see if it should turn off
- */
--(void) onAppTerminate
-{
-    NSLog(@"- CDVBackgroundFetch onAppTerminate");
-    if (stopOnTerminate) {
-        NSLog(@"- stopping background-fetch");
-        TSBackgroundFetch *fetchManager = [TSBackgroundFetch sharedInstance];
-        [fetchManager stop];
-    }
-}
-
-// If you don't stopMonitorying when application terminates, the app will be awoken still when a
-// new location arrives, essentially monitoring the user's location even when they've killed the app.
-// Might be desirable in certain apps.
-- (void)applicationWillTerminate:(UIApplication *)application 
-{
-    
+    CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
 }
 
 - (void)dealloc

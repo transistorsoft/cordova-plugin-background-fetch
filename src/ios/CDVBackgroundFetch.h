@@ -10,6 +10,7 @@
 @interface CDVBackgroundFetch : CDVPlugin
 - (void) configure:(CDVInvokedUrlCommand*)command;
 - (void) finish:(CDVInvokedUrlCommand*)command;
-
+- (void) start:(CDVInvokedUrlCommand*)command;
+- (void) stop:(CDVInvokedUrlCommand*)command;
 @end
 

@@ -1,7 +1,6 @@
 /***
  * Custom Cordova Background Fetch plugin. 
  * @author <chris@transistorsoft.com>
- * @author <brian@briansamson.com>
  * iOS native-side is largely based upon http://www.mindsizzlers.com/2011/07/ios-background-location/
  * 
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -23,38 +22,27 @@
  *
 */
 var exec = require("cordova/exec");
+var MODULE = "BackgroundFetch";
 module.exports = {
-    /**
-    * @property {Boolean} flag to determine if a current fetch operation is active
-    */
-    isActive: false,
-    /**
-     * @property {Object} config The config supplied to #configure
-     */
-    config: undefined,
-    
     configure: function(callback, failure, config) {
-        var me = this,
-            config = config || {};
-        this.config = config;
-        // wrap the supplied callback so we can set isActive flag.
-        var success = function() {
-            me.isActive = true;
-            callback.apply(me, arguments);    
-        };
-        exec(success || function() {},
-             failure || function() {},
-             'BackgroundFetch',
-             'configure',
-             [config]);
+        if (typeof(callback) !== 'function') {
+            throw "BackgroundFetch configure error:  You must provide a callback function as 1st argument";
+        }
+        config = config || {};
+        failure = failure || function() {};
+        exec(callback, failure, MODULE, 'configure', [config]);
     },
-    finish: function(success, failure) {
-        exec(success || function(){},
-            failure || function(){},
-            'BackgroundFetch',
-            'finish',
-            []);
-        this.isActive = false;
+    finish: function() {
+        exec(function(){}, function(){}, MODULE, 'finish',[]);
+    },
+    start: function(success, failure) {
+        success = success || function() {};
+        failure = failure || function() {};
+        exec(success, failure, MODULE, 'start',[]);  
+    },
+    stop: function(success, failure) {
+        success = success || function() {};
+        failure = failure || function() {};
+        exec(success, failure, MODULE, 'stop',[]);
     }
 };
-
