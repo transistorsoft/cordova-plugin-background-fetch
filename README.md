@@ -12,36 +12,49 @@ Follows the [Cordova Plugin spec](https://github.com/apache/cordova-plugman/blob
 This plugin leverages Cordova/PhoneGap's [require/define functionality used for plugins](http://simonmacdonald.blogspot.ca/2012/08/so-you-wanna-write-phonegap-200-android.html). 
 
 ## Using the plugin ##
-The plugin creates the object `window.BackgroundFetch` with the methods `configure(success, fail, option)`, `start(success, fail)` and `stop(success, fail). 
+The plugin creates the object `window.BackgroundFetch` with the methods `configure(success, fail, option)`, `start(success, fail)` and `stop(success, fail)`. 
 
 ## Installing the plugin ##
 
-1.Download the repo using GIT or just a ZIP from Github.
+### Command Line
 
-2.Add the plugin to your project (from the root of your project):
-
+```Bash
+   $ cordova plugin add cordova-plugin-background-fetch
 ```
-   $ cordova plugin add https://github.com/christocracy/cordova-plugin-background-fetch.git
+
+### PhoneGap Build
+
+```Bash
+  <plugin name="cordova-plugin-background-fetch source="npm" />
 ```
 
 ## Config 
 
 ####`@param {Boolean} stopOnTerminate`
 
-Set `true` to cease background-fetch from operating after user "closes" the app.  Defaults to `false`.
+Set `true` to cease background-fetch from operating after user "closes" the app.  Defaults to `true`.
+
+## Methods
+
+| Method Name | Arguments | Notes
+|---|---|---|
+| `configure` | `callbackFn`, `failureFn`, `{config}` | Configures the plugin's fetch `callbackFn`.  This callback will fire each time an iOS background-fetch event occurs (typically every 15 min).  The `failureFn` will be called if the device doesn't support background-fetch. |
+| `finish` | *none* | You **MUST** call this method in your fetch `callbackFn` provided to `#configure` in order to signal to iOS that your fetch action is complete.  iOS provides **only** 30s of background-time for a fetch-event -- if you exceed this 30s, iOS will kill your app. |
+| `start` | `successFn`, `failureFn` | Start the background-fetch API.  Your `callbackFn` provided to `#configure` will be executed each time a background-fetch event occurs.  **NOTE** the `#configure` method *automatically* calls `#start`.  You do **not** have to call this method after you `#configure` the plugin |
+| `stop` | `successFn`, `failureFn` | Stop the background-fetch API from firing fetch events.  Your `callbackFn` provided to `#configure` will no longer be executed. |
 
 ## Example ##
 
 A full example could be:
-```
+```Javascript
    onDeviceReady: function() {
         var Fetcher = window.BackgroundFetch;
         
         // Your background-fetch handler.
         var fetchCallback = function() {
-            console.log('BackgroundFetch initiated');
+            console.log('[js] BackgroundFetch initiated');
 
-            // perform your ajax request to server here
+            // perform some ajax request to server here
             $.get({
                 url: '/heartbeat.json',
                 callback: function(response) {
@@ -51,28 +64,24 @@ A full example could be:
                 }
             });
         }
-        var failureCallback = function() {
-            console.log('- BackgroundFetch failed');
+        var failureCallback = function(error) {
+            console.log('- BackgroundFetch failed', error);
         };
         Fetcher.configure(fetchCallback, failureCallback, {
-            stopOnTerminate: false  // <-- false is default
+            stopOnTerminate: false  // <-- true is default
         });
     }
-
-
 ```
 
 ## iOS
 
 Implements [performFetchWithCompletionHandler](https://developer.apple.com/library/ios/documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/occ/intfm/UIApplicationDelegate/application:performFetchWithCompletionHandler:), firing a custom event subscribed-to in cordova plugin.
 
-
-
 ## Licence ##
 
 The MIT License
 
-Copyright (c) 2013 Chris Scott <chris@transistorsoft.com>
+Copyright (c) 2013 Chris Scott, Transistor Software <chris@transistorsoft.com>
 http://transistorsoft.com
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
