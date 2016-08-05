@@ -8,11 +8,13 @@
 #import "AppDelegate.h"
 #import <TSBackgroundFetch/TSBackgroundFetch.h>
 
+static NSString *const TAG = @"CDVBackgroundFetch";
+
 @implementation AppDelegate(AppDelegate)
 
 -(void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
-    NSLog(@"CDVBackgroundFetch AppDelegate received fetch event");
+    NSLog(@"%@ AppDelegate received fetch event", TAG);
     TSBackgroundFetch *fetchManager = [TSBackgroundFetch sharedInstance];
     [fetchManager performFetchWithCompletionHandler:completionHandler];    
 }
@@ -33,10 +35,10 @@
 - (void) configure:(CDVInvokedUrlCommand*)command
 {    
     if (configured) {
-        NSLog(@"- CDVBackgroundFetch already configured");
+        NSLog(@"- %@ already configured", TAG);
         return;
     }
-    NSLog(@"- CDVBackgroundFetch configure");
+    NSLog(@"- %@ configure", TAG);
     
     TSBackgroundFetch *fetchManager = [TSBackgroundFetch sharedInstance];
     
@@ -48,15 +50,15 @@
         configured = YES;
         void (^handler)();    
         handler = ^void(void){
-            NSLog(@"- CDVBackgroundFetch Rx Fetch Event");
+            NSLog(@"- %@ Rx Fetch Event", TAG);
             CDVPluginResult* result = nil;
             result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
             [result setKeepCallbackAsBool:YES];
             [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
         };
-        [fetchManager addListener:handler];
+        [fetchManager addListener:TAG callback:handler];
     } else {
-        NSLog(@"- CDVBackgroundFetch failed to start");
+        NSLog(@"- %@ failed to start", TAG);
         CDVPluginResult* result = nil;
         result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
         [result setKeepCallbackAsBool:NO];
@@ -66,7 +68,7 @@
 
 -(void) start:(CDVInvokedUrlCommand*)command
 {
-    NSLog(@"- CDVBackgroundFetch start");
+    NSLog(@"- %@ start", TAG);
     TSBackgroundFetch *fetchManager = [TSBackgroundFetch sharedInstance];
 
     CDVPluginResult* result = nil;
@@ -80,7 +82,7 @@
 }
 -(void) stop:(CDVInvokedUrlCommand*)command
 {
-    NSLog(@"- CDVBackgroundFetch stop");
+    NSLog(@"- %@ stop", TAG);
     TSBackgroundFetch *fetchManager = [TSBackgroundFetch sharedInstance];
     [fetchManager stop];
     CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -88,9 +90,9 @@
 }
 -(void) finish:(CDVInvokedUrlCommand*)command
 {
-    NSLog(@"- CDVBackgroundFetch finish");
+    NSLog(@"- %@ finish", TAG);
     TSBackgroundFetch *fetchManager = [TSBackgroundFetch sharedInstance];
-    [fetchManager finish:UIBackgroundFetchResultNewData];
+    [fetchManager finish:TAG result:UIBackgroundFetchResultNewData];
     CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
 }
