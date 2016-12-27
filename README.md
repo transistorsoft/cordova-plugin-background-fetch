@@ -25,7 +25,7 @@ The plugin creates the object `window.BackgroundFetch` with the methods `configu
 ### PhoneGap Build
 
 ```Bash
-  <plugin name="cordova-plugin-background-fetch source="npm" />
+  <plugin name="cordova-plugin-background-fetch" source="npm" />
 ```
 
 ## Config 
