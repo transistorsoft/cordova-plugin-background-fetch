@@ -12,5 +12,6 @@
 - (void) finish:(CDVInvokedUrlCommand*)command;
 - (void) start:(CDVInvokedUrlCommand*)command;
 - (void) stop:(CDVInvokedUrlCommand*)command;
+- (void) status:(CDVInvokedUrlCommand*)command;
 @end
 

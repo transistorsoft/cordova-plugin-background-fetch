@@ -44,5 +44,10 @@ module.exports = {
         success = success || function() {};
         failure = failure || function() {};
         exec(success, failure, MODULE, 'stop',[]);
+    },
+    status: function(success, failure) {
+        success = success || function() {};
+        failure = failure || function() {};
+        exec(success, failure, MODULE, 'status',[]);  
     }
 };
