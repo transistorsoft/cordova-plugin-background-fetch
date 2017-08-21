@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-background-fetch",
-  "version": "4.0.4",
+  "version": "5.0.0",
   "description": "Cordova implementation of iOS Background Fetch API",
   "cordova": {
     "id": "cordova-plugin-background-fetch",
