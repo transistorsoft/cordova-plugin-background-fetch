@@ -1,7 +1,7 @@
 {
   "name": "cordova-plugin-background-fetch",
-  "version": "5.1.1",
-  "description": "Cordova implementation of iOS Background Fetch API",
+  "version": "5.2.0",
+  "description": "A plugin to periodically awaken your app in the background every 15 minutes to perform some work.",
   "cordova": {
     "id": "cordova-plugin-background-fetch",
     "platforms": [
