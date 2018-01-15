@@ -1,0 +1,10 @@
+repositories{    
+  jcenter()
+  flatDir{
+    dirs 'src/android/libs'
+  }  
+}
+
+dependencies {
+  compile(name:'tsbackgroundfetch', ext:'aar')  
+}

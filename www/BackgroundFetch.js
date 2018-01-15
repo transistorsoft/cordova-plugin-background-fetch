@@ -24,6 +24,10 @@
 var exec = require("cordova/exec");
 var MODULE = "BackgroundFetch";
 module.exports = {
+    STATUS_RESTRICTED: 0,
+    STATUS_DENIED: 1,
+    STATUS_AVAILABLE: 2,
+
     configure: function(callback, failure, config) {
         if (typeof(callback) !== 'function') {
             throw "BackgroundFetch configure error:  You must provide a callback function as 1st argument";
