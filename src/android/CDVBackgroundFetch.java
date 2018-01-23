@@ -1,4 +1,4 @@
-package com.transistorsoft.cordova;
+package com.transistorsoft.cordova.backgroundfetch;
 
 import com.transistorsoft.tsbackgroundfetch.BackgroundFetch;
 import com.transistorsoft.tsbackgroundfetch.BackgroundFetchConfig;
@@ -16,6 +16,7 @@ import android.app.Activity;
 import android.content.Intent;
 
 public class CDVBackgroundFetch extends CordovaPlugin {
+	private static final String JOB_SERVICE_CLASS = "HeadlessJobService";
 
 	private boolean isForceReload = false;
 
@@ -68,6 +69,9 @@ public class CDVBackgroundFetch extends CordovaPlugin {
 		if (options.has("startOnBoot")) {
 			config.setStartOnBoot(options.getBoolean("startOnBoot"));
 		}
+		if (options.has("enableHeadless") && options.getBoolean("enableHeadless")) {
+			config.setJobService(getClass().getPackage().getName() + "." + JOB_SERVICE_CLASS);
+		}
 		BackgroundFetch.Callback callback = new BackgroundFetch.Callback() {
 			@Override
 			public void onFetch() {
@@ -104,5 +108,5 @@ public class CDVBackgroundFetch extends CordovaPlugin {
 
 	private BackgroundFetch getAdapter() {
         return BackgroundFetch.getInstance(cordova.getActivity().getApplicationContext());
-    }
+    }    
 }
