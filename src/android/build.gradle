@@ -6,5 +6,5 @@ repositories{
 }
 
 dependencies {
-  compile(name:'tsbackgroundfetch', ext:'aar')  
+    compile(name:'tsbackgroundfetch', ext:'aar')  
 }
