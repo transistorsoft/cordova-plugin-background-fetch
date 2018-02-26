@@ -189,7 +189,7 @@ export class HomePage {
 ```bash
 $ adb logcat -s TSBackgroundFetch
 ```
-- Simulate a background-fetch event on a device (insert *&lt;your.application.id&gt;*) (only works for sdk `21+`:
+- Simulate a background-fetch event on a device (insert *&lt;your.application.id&gt;*) (only works for sdk `24+`):
 ```bash
 $ adb shell cmd jobscheduler run -f <your.application.id> 999
 ```
