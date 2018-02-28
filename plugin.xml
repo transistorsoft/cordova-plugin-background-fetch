@@ -3,7 +3,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="cordova-plugin-background-fetch"
-    version="5.2.1">
+    version="5.3.0">
     <name>CDVBackgroundFetch</name>
     <description>Cordova Background Fetch Plugin</description>
     <license>MIT</license>
@@ -41,7 +41,7 @@
     </platform>
 
     <platform name="android">
-        <resource-file src="src/android/libs/tsbackgroundfetch.aar" target="src/android/libs/tsbackgroundfetch.aar" />
+        <source-file src="src/android/libs/com/transistorsoft/tsbackgroundfetch" target-dir="src/android/libs/com/transistorsoft" />
         <source-file src="src/android/CDVBackgroundFetch.java" target-dir="src/com/transistorsoft/cordova/backgroundfetch" />
         <source-file src="src/android/HeadlessBroadcastReceiver.java" target-dir="src/com/transistorsoft/cordova/backgroundfetch" />
         <source-file src="src/android/HeadlessJobService.java" target-dir="src/com/transistorsoft/cordova/backgroundfetch" />
