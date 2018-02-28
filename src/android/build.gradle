@@ -1,10 +1,10 @@
 repositories{    
   jcenter()
-  flatDir{
-    dirs 'src/android/libs'
-  }  
+  maven {
+    url 'src/android/libs'
+  }
 }
 
 dependencies {
-    compile(name:'tsbackgroundfetch', ext:'aar')  
+    compile(group: 'com.transistorsoft', name:'tsbackgroundfetch', version: '+')
 }
