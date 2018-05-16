@@ -3,7 +3,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="cordova-plugin-background-fetch"
-    version="5.3.0">
+    version="5.4.0">
     <name>CDVBackgroundFetch</name>
     <description>Cordova Background Fetch Plugin</description>
     <license>MIT</license>
@@ -12,7 +12,9 @@
     <keywords>phonegap,cordova,background fetch</keywords>
 
     <engines>
-        <engine name="cordova" version=">=3.0.0" />
+        <engine name="cordova" version=">=8.0.0" />
+        <engine name="cordova-android" version=">=7.0.0"/>
+        <engine name="cordova-ios" version=">=4.4.0"/>
     </engines>
 
     <js-module src="www/BackgroundFetch.js" name="BackgroundFetch">
@@ -35,13 +37,14 @@
         </config-file>
 
         <framework src="src/ios/TSBackgroundFetch.framework" custom="true"/>
-        
+
         <source-file src="src/ios/CDVBackgroundFetch.m" />
         <header-file src="src/ios/CDVBackgroundFetch.h" />
     </platform>
 
     <platform name="android">
-        <source-file src="src/android/libs/com/transistorsoft/tsbackgroundfetch" target-dir="src/android/libs/com/transistorsoft" />
+        <resource-file src="src/android/libs/com/transistorsoft/tsbackgroundfetch" target="../../libs/com/transistorsoft/tsbackgroundfetch" />
+
         <source-file src="src/android/CDVBackgroundFetch.java" target-dir="src/com/transistorsoft/cordova/backgroundfetch" />
         <source-file src="src/android/HeadlessBroadcastReceiver.java" target-dir="src/com/transistorsoft/cordova/backgroundfetch" />
         <source-file src="src/android/HeadlessJobService.java" target-dir="src/com/transistorsoft/cordova/backgroundfetch" />
@@ -57,7 +60,7 @@
 
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
             <service android:exported="true" android:name="com.transistorsoft.cordova.backgroundfetch.HeadlessJobService" android:permission="android.permission.BIND_JOB_SERVICE" />
-            
+
             <receiver android:name="com.transistorsoft.cordova.backgroundfetch.HeadlessBroadcastReceiver">
                 <intent-filter>
                     <action android:name="${applicationId}.event.BACKGROUND_FETCH" />

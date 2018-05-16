@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-background-fetch",
-  "version": "5.3.0",
+  "version": "5.4.0",
   "description": "A plugin to periodically awaken your app in the background every 15 minutes to perform some work.",
   "cordova": {
     "id": "cordova-plugin-background-fetch",
@@ -22,11 +22,20 @@
     "url": "https://github.com/transistorsoft/react-native-background-fetch/issues"
   },
   "homepage": "https://github.com/transistorsoft/react-native-background-fetch",
-  "engines": [
-    {
-      "name": "cordova",
-      "version": ">=3.0.0"
+
+  "engines": {
+    "cordovaDependencies": {
+      "<5.4.0": {
+        "cordova": ">=6.4.0",
+        "cordova-android": ">=6.0.0",
+        "cordova-ios": ">=4.3.0"
+      },
+      "5.4.0": {
+        "cordova": ">=8.0.0",
+        "cordova-android": ">=7.0.0",
+        "cordova-ios": ">=4.4.0"
+      }
     }
-  ],
+  },
   "author": "Chris Scott, Transistor Software <chris@transistorsoft.com>"
 }
