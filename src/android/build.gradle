@@ -1,7 +1,7 @@
 repositories{    
   jcenter()
   maven {
-    url 'src/android/libs'
+    url '../app/libs'
   }
 }
 
