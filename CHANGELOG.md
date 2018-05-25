@@ -1,4 +1,8 @@
 # CHANGELOG
+
+## [5.4.1] &mdash; 2018-05-25
+- [Changed] Decrease required cordova version from `8.0.0` -> `7.1.0`.
+
 ## [5.4.0] &mdash; 2018-05-16
 - [Added] `cordova-android @ 7.0.0` support.
 
