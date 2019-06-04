@@ -7,12 +7,21 @@ By [**Transistor Software**](https://www.transistorsoft.com), creators of [**Cor
 
 ------------------------------------------------------------------------------
 
-Background Fetch is a *very* simple plugin for iOS &amp; Android which will awaken an app in the background about **every 15 minutes**, providing a short period of background running-time.  This plugin will execute your provided `callbackFn` whenever a background-fetch event occurs.  
+Background Fetch is a *very* simple plugin for iOS &amp; Android which will awaken an app in the background about **every 15 minutes**, providing a short period of background running-time.  This plugin will execute your provided `callbackFn` whenever a background-fetch event occurs.
 
 There is **no way** to increase the rate which a fetch-event occurs and this plugin sets the rate to the most frequent possible &mdash; you will **never** receive an event faster than **15 minutes**.  The operating-system will automatically throttle the rate the background-fetch events occur based upon usage patterns.  Eg: if user hasn't turned on their phone for a long period of time, fetch events will occur less frequently.
 
 ## Using the plugin ##
+
+- **Cordova / Ionic 1**
 The plugin creates the object **`window.BackgroundFetch`**.
+
+- With Typescript (eg: Ionic 2+):
+```typescript
+import BackgroundFetch from "cordova-plugin-background-fetch";
+
+```
+
 
 ## Installing the plugin ##
 
@@ -28,7 +37,7 @@ The plugin creates the object **`window.BackgroundFetch`**.
   <plugin name="cordova-plugin-background-fetch" source="npm" />
 ```
 
-## Config 
+## Config
 
 ### Common Options
 
@@ -48,6 +57,44 @@ Set `true` to initiate background-fetch events when the device is rebooted.  Def
 
 :exclamation: **NOTE:** `startOnBoot` requires `stopOnTerminate: false`.
 
+#### `@config {integer} requiredNetworkType [BackgroundFetch.NETWORK_TYPE_NONE]`
+
+Set basic description of the kind of network your job requires.
+
+If your job doesn't need a network connection, you don't need use this options as the default value is `BackgroundFetch.NETWORK_TYPE_NONE`.
+
+| NetworkType                           | Description                                                         |
+|---------------------------------------|---------------------------------------------------------------------|
+| `BackgroundFetch.NETWORK_TYPE_NONE`     | This job doesn't care about network constraints, either any or none.|
+| `BackgroundFetch.NETWORK_TYPE_ANY`      | This job requires network connectivity.                             |
+| `BackgroundFetch.NETWORK_TYPE_CELLULAR` | This job requires network connectivity that is a cellular network.  |
+| `BackgroundFetch.NETWORK_TYPE_UNMETERED` | This job requires network connectivity that is unmetered.          |
+| `BackgroundFetch.NETWORK_TYPE_NOT_ROAMING` | This job requires network connectivity that is not roaming.      |
+
+#### `@config {Boolean} requiresBatteryNotLow [false]`
+
+Specify that to run this job, the device's battery level must not be low.
+
+This defaults to false. If true, the job will only run when the battery level is not low, which is generally the point where the user is given a "low battery" warning.
+
+#### `@config {Boolean} requiresStorageNotLow [false]`
+
+Specify that to run this job, the device's available storage must not be low.
+
+This defaults to false. If true, the job will only run when the device is not in a low storage state, which is generally the point where the user is given a "low storage" warning.
+
+#### `@config {Boolean} requiresCharging [false]`
+
+Specify that to run this job, the device must be charging (or be a non-battery-powered device connected to permanent power, such as Android TV devices). This defaults to false.
+
+#### `@config {Boolean} requiresDeviceIdle [false]`
+
+When set true, ensure that this job will not run if the device is in active use.
+
+The default state is false: that is, the for the job to be runnable even when someone is interacting with the device.
+
+This state is a loose definition provided by the system. In general, it means that the device is not currently being used interactively, and has not been in use for some time. As such, it is a good time to perform resource heavy jobs. Bear in mind that battery usage will still be attributed to your application, and surfaced to the user in battery stats.
+
 #### `@config {Boolean} forceReload [false]`
 
 Set `true` to automatically relaunch the application (if it was terminated) &mdash; the application will launch to the foreground then immediately minimize.  Defaults to `false`.
@@ -59,9 +106,9 @@ Set `true` to automatically relaunch the application (if it was terminated) &mda
 When your application is terminated with **`stopOnTerminate: false`**, your Javascript app (and your Javascript fetch `callback`) *are* terminated.  However, the plugin provides a mechanism for you to handle background-fetch events in the **Native Android Environment**, as an alternative to `forceReload: true`, which forcibly re-launches your entire Cordova application.
 
 Some examples where you could use the "Headless" mechanism:
-- Refreshing API keys. 
+- Refreshing API keys.
 - Performing HTTP requests with your server.
-- Posting a local notification 
+- Posting a local notification
 
 #### Headless Fetch Setup
 
@@ -130,10 +177,7 @@ onDeviceReady: function() {
   };
 
   BackgroundFetch.configure(fetchCallback, failureCallback, {
-    minimumFetchInterval: 15, // <-- default is 15
-    stopOnTerminate: false,   // <-- Android only
-    startOnBoot: true,        // <-- Android only
-    forceReload: true         // <-- Android only
+    minimumFetchInterval: 15 // <-- default is 15
   });
 }
 ```
@@ -142,6 +186,8 @@ onDeviceReady: function() {
 ```javascript
 import { Component } from '@angular/core';
 import { NavController, Platform } from 'ionic-angular';
+
+import BackgroundFetch from "cordova-plugin-background-fetch";
 
 @Component({
   selector: 'page-home',
@@ -153,8 +199,6 @@ export class HomePage {
   }
 
   onDeviceReady() {
-    let BackgroundFetch = (<any>window).BackgroundFetch;
-        
     // Your background-fetch handler.
     let fetchCallback = function() {
         console.log('[js] BackgroundFetch event received');
@@ -162,16 +206,15 @@ export class HomePage {
         // If you fail to do this, the OS can terminate your app
         // or assign battery-blame for consuming too much background-time
         BackgroundFetch.finish();
-    }
+    };
+
     let failureCallback = function(error) {
         console.log('- BackgroundFetch failed', error);
     };
+
     BackgroundFetch.configure(fetchCallback, failureCallback, {
-        minimumFetchInterval: 15, // <-- default is 15
-        stopOnTerminate: false,   // <-- Android only
-        startOnBoot: true,        // <-- Android only
-        forceReload: true         // <-- Android only
-    });        
+        minimumFetchInterval: 15 // <-- default is 15
+    });
   }
 }
 ```

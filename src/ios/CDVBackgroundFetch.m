@@ -48,7 +48,7 @@ static NSString *const TAG = @"CDVBackgroundFetch";
         }
         configured = YES;
 
-        void (^handler)();
+        void (^handler)(void);
         handler = ^void(void){
             NSLog(@"- %@ Rx Fetch Event", TAG);
             CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -86,10 +86,18 @@ static NSString *const TAG = @"CDVBackgroundFetch";
 
 -(void) finish:(CDVInvokedUrlCommand*)command
 {
+    NSInteger fetchResult = [[command.arguments objectAtIndex:0] integerValue];
+    UIBackgroundFetchResult result = UIBackgroundFetchResultNewData;
+    if (fetchResult == UIBackgroundFetchResultNewData
+     || fetchResult == UIBackgroundFetchResultNoData
+     || fetchResult == UIBackgroundFetchResultFailed) {
+        result = fetchResult;
+    }
+
     TSBackgroundFetch *fetchManager = [TSBackgroundFetch sharedInstance];
-    [fetchManager finish:TAG result:UIBackgroundFetchResultNewData];
-    CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+    [fetchManager finish:TAG result:fetchResult];
+    CDVPluginResult *response = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:response callbackId:command.callbackId];
 }
 
 -(void) status:(CDVInvokedUrlCommand*)command

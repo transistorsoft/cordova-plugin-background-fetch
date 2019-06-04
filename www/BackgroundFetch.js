@@ -1,8 +1,8 @@
 /***
- * Custom Cordova Background Fetch plugin. 
+ * Custom Cordova Background Fetch plugin.
  * @author <chris@transistorsoft.com>
  * iOS native-side is largely based upon http://www.mindsizzlers.com/2011/07/ios-background-location/
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -28,6 +28,16 @@ module.exports = {
     STATUS_DENIED: 1,
     STATUS_AVAILABLE: 2,
 
+    FETCH_RESULT_NEW_DATA: 0,
+    FETCH_RESULT_NO_DATA:  1,
+    FETCH_RESULT_FAILED:   2,
+
+    NETWORK_TYPE_NONE:        0,
+    NETWORK_TYPE_ANY:         1,
+    NETWORK_TYPE_UNMETERED:   2,
+    NETWORK_TYPE_NOT_ROAMING: 3,
+    NETWORK_TYPE_CELLULAR:    4,
+
     configure: function(callback, failure, config) {
         if (typeof(callback) !== 'function') {
             throw "BackgroundFetch configure error:  You must provide a callback function as 1st argument";
@@ -36,22 +46,27 @@ module.exports = {
         failure = failure || function() {};
         exec(callback, failure, MODULE, 'configure', [config]);
     },
-    finish: function() {
-        exec(function(){}, function(){}, MODULE, 'finish',[]);
+
+    finish: function(status) {
+        status = status || this.FETCH_RESULT_NEW_DATA;
+        exec(function(){}, function(){}, MODULE, 'finish',[status]);
     },
+
     start: function(success, failure) {
         success = success || function() {};
         failure = failure || function() {};
-        exec(success, failure, MODULE, 'start',[]);  
+        exec(success, failure, MODULE, 'start',[]);
     },
+
     stop: function(success, failure) {
         success = success || function() {};
         failure = failure || function() {};
         exec(success, failure, MODULE, 'stop',[]);
     },
+
     status: function(success, failure) {
         success = success || function() {};
         failure = failure || function() {};
-        exec(success, failure, MODULE, 'status',[]);  
+        exec(success, failure, MODULE, 'status',[]);
     }
 };
