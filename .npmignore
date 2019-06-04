@@ -1,0 +1,8 @@
+*.log
+node_modules
+
+ISSUE_TEMPLATE.md
+CHANGELOG.md
+src/typescript/index.ts
+src/typescript/tsconfig.json
+

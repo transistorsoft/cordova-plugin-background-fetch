@@ -72,6 +72,22 @@ public class CDVBackgroundFetch extends CordovaPlugin {
         if (options.has("enableHeadless") && options.getBoolean("enableHeadless")) {
             config.setJobService(getClass().getPackage().getName() + "." + JOB_SERVICE_CLASS);
         }
+        if (options.has("requiredNetworkType")) {
+            config.setRequiredNetworkType(options.getInt("requiredNetworkType"));
+        }
+        if (options.has("requiresBatteryNotLow")) {
+            config.setRequiresBatteryNotLow(options.getBoolean("requiresBatteryNotLow"));
+        }
+        if (options.has("requiresCharging")) {
+            config.setRequiresCharging(options.getBoolean("requiresCharging"));
+        }
+        if (options.has("requiresDeviceIdle")) {
+            config.setRequiresDeviceIdle(options.getBoolean("requiresDeviceIdle"));
+        }
+        if (options.has("requiresStorageNotLow")) {
+            config.setRequiresStorageNotLow(options.getBoolean("requiresStorageNotLow"));
+        }
+
         BackgroundFetch.Callback callback = new BackgroundFetch.Callback() {
             @Override
             public void onFetch() {
