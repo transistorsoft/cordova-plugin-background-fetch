@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [5.5.0] &mdash; 2019-06-04
+- [Added] Typescript API
+- [Added] Android `JobInfo` criteria `requiredNetworkType`, `requiresCharging`, `requiresBatteryNotLow`, `requiresDeviceIdle`, `requiresStorageNotLow`.
+- [Added] `finish` now accepts `BackgroundFetch.FETCH_RESULT_*` (eg: `BackgroundFetch.FETCH_RESULT_NO_DATA`).
+
 ## [5.4.1] &mdash; 2018-05-25
 - [Changed] Decrease required cordova version from `8.0.0` -> `7.1.0`.
 
