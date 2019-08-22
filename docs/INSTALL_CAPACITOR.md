@@ -1,7 +1,7 @@
 # Capacitor Setup
 
 ```
-npm install cordova-plugin-name
+npm install cordova-plugin-background-fetch
 npx cap sync
 ```
 
