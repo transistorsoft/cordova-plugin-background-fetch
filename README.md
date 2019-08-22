@@ -25,13 +25,25 @@ import BackgroundFetch from "cordova-plugin-background-fetch";
 
 ## Installing the plugin ##
 
-### Command Line
-
-```bash
-   $ cordova plugin add cordova-plugin-background-fetch
+- ### Ionic
+```
+ionic cordova plugin add cordova-plugin-background-fetch
 ```
 
-### PhoneGap Build
+- ### Pure Cordova
+
+```bash
+cordova plugin add cordova-plugin-background-fetch
+```
+
+- ### Capacitor
+```bash
+npm install cordova-plugin-background-fetch
+npx cap sync
+```
+:information_source: See [Capacitor Setup](./docs/INSTALL_CAPACITOR.md)
+
+- ### PhoneGap Build
 
 ```xml
   <plugin name="cordova-plugin-background-fetch" source="npm" />
