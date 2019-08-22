@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## [5.6.0] &mdash; 2019-08-22
+- [Added] Capacitor support
+
 ## [5.5.0] &mdash; 2019-06-04
 - [Added] Typescript API
 - [Added] Android `JobInfo` criteria `requiredNetworkType`, `requiresCharging`, `requiresBatteryNotLow`, `requiresDeviceIdle`, `requiresStorageNotLow`.
