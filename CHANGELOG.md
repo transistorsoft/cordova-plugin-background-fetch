@@ -1,4 +1,6 @@
 # CHANGELOG
+## [5.6.1] &mdash; 2019-10-07
+- [Fixed] Resolve Android issues exposed by booting app in StrictMode, typically from loading SharedPreferences on Main Thread.
 
 ## [5.6.0] &mdash; 2019-08-22
 - [Added] Capacitor support
