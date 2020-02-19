@@ -1,4 +1,60 @@
 # CHANGELOG
+## [6.0.0] &mdash; 2020-02-19
+
+* [Added] [Android-only] New option `forceAlarmManager` for bypassing `JobScheduler` mechanism in favour of `AlarmManager` for more precise scheduling task execution.
+* [Changed] Migrate iOS deprecated "background-fetch" API to new [BGTaskScheduler](https://developer.apple.com/documentation/backgroundtasks/bgtaskscheduler?language=objc).  See new required steps in iOS Setup.
+* [Added] Added new `BackgroundFetch.scheduleTask` method (along with corresponding `#stopTask`) for scheduling custom "onehot" and periodic tasks in addition to the default fetch-task.
+
+```javascript
+BackgroundFetch.configure({
+  minimumFetchInterval: 15,
+  stopOnTerminate: false
+}, (taskId) => {  // <-- [NEW] taskId provided to Callback
+  console.log("[BackgroundFetch] taskId: ", taskId);
+  switch(taskId) {
+    case 'foo':
+      // Handle scheduleTask 'foo'
+      break;
+    default:
+      // Handle default fetch event.
+      break;
+  }
+  BackgroundFetch.finish(taskId);  // <-- [NEW] Provided taskId to #finish method.
+});
+
+// This event will end up in Callback provided to #configure above.
+BackgroundFetch.scheduleTask({
+  taskId: 'foo',  //<-- required
+  delay: 60000,
+  periodic: false
+});
+```
+
+## Breaking Changes
+* With the introduction of ability to execute custom tasks via `#scheduleTask`, all tasks are executed in the Callback provided to `#configure`.  As a result, this Callback is now provided an argument `String taskId`.  This `taskId` must now be provided to the `#finish` method, so that the SDK knows *which* task is being `#finish`ed.
+
+```javascript
+BackgroundFetch.configure({
+  minimumFetchInterval: 15,
+  stopOnTerminate: false
+), (taskId) => {  // <-- [NEW] taskId provided to Callback
+  console.log("[BackgroundFetch] taskId: ", taskId);
+  BackgroundFetch.finish(taskId);  // <-- [NEW] Provided taskId to #finish method.
+});
+```
+
+And with the Headless Task, as well:
+```java
+public class BackgroundFetchHeadlessTask implements HeadlessTask {
+    @Override
+    public void onFetch(Context context, String taskId) {  // <-- 1.  Added String taskId as 2nd argument
+        Log.d(BackgroundFetch.TAG, "BackgroundFetchHeadlessTask onFetch: " + taskId);
+        BackgroundFetch.getInstance(context).finish(taskId);  // <-- 2.  Provide taskId to #finish.
+    }
+}
+```
+
+
 ## [5.6.1] &mdash; 2019-10-07
 - [Fixed] Resolve Android issues exposed by booting app in StrictMode, typically from loading SharedPreferences on Main Thread.
 

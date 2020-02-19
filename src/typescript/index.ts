@@ -23,7 +23,7 @@ export default class BackgroundFetch {
     return fetch.configure.apply(fetch, arguments);
   }
 
-  static finish() {
+  static finish(taskId:string) {
   	let fetch = plugin();
   	return fetch.finish.apply(fetch, arguments);
   }
@@ -31,6 +31,16 @@ export default class BackgroundFetch {
   static start() {
   	let fetch = plugin();
   	return fetch.start.apply(fetch, arguments);
+  }
+
+  static scheduleTask(config:object, success:Function, failure:Function) {
+    let fetch = plugin();
+    return fetch.scheduleTask.apply(fetch, arguments);
+  }
+
+  static stopTask(taskId:string, success:Function, failure:Function) {
+    let fetch = plugin();
+    return fetch.stopTask.apply(fetch, arguments);
   }
 
   static stop() {

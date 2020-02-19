@@ -22,6 +22,9 @@
  *
 */
 var exec = require("cordova/exec");
+
+var EMPTY_FN = function() {}
+
 var MODULE = "BackgroundFetch";
 module.exports = {
     STATUS_RESTRICTED: 0,
@@ -43,30 +46,48 @@ module.exports = {
             throw "BackgroundFetch configure error:  You must provide a callback function as 1st argument";
         }
         config = config || {};
-        failure = failure || function() {};
+        failure = failure || EMPTY_FN;
         exec(callback, failure, MODULE, 'configure', [config]);
     },
 
-    finish: function(status) {
-        status = status || this.FETCH_RESULT_NEW_DATA;
-        exec(function(){}, function(){}, MODULE, 'finish',[status]);
+    finish: function(taskId, success, failure) {
+        if (typeof(taskId) !== 'string') {
+            throw "BackgroundGeolocation.finish now requires a String taskId as first argument";
+        }
+        success = success || EMPTY_FN;
+        failure = failure || EMPTY_FN;
+        exec(success, failure, MODULE, 'finish',[taskId]);
     },
 
     start: function(success, failure) {
-        success = success || function() {};
-        failure = failure || function() {};
+        success = success || EMPTY_FN;
+        failure = failure || EMPTY_FN;
         exec(success, failure, MODULE, 'start',[]);
     },
 
     stop: function(success, failure) {
-        success = success || function() {};
-        failure = failure || function() {};
-        exec(success, failure, MODULE, 'stop',[]);
+        success = success || EMPTY_FN;
+        failure = failure || EMPTY_FN;
+        exec(success, failure, MODULE, 'stop', []);
+    },
+
+    scheduleTask: function(config, success, failure) {
+        if (typeof(config) !== 'object') throw "[BackgroundFetch stopTask] ERROR:  The 1st argument to scheduleTask is a config {}";
+        success = success || EMPTY_FN;
+        failure = failure || EMPTY_FN;
+        exec(success, failure, MODULE, 'scheduleTask', [config]);
+    },
+
+    stopTask: function(taskId, success, failure) {
+        if (typeof(taskId) !== 'string') throw "[BackgroundFetch stopTask] ERROR: The 1st argument must be a taskId:String";
+        success = success || EMPTY_FN;
+        failure = failure || EMPTY_FN;
+        exec(success, failure, MODULE, 'stop', [taskId]);
     },
 
     status: function(success, failure) {
-        success = success || function() {};
-        failure = failure || function() {};
+        success = success || EMPTY_FN;
+        failure = failure || EMPTY_FN;
         exec(success, failure, MODULE, 'status',[]);
     }
 };

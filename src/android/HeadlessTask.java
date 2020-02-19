@@ -7,5 +7,5 @@ import android.content.Context;
  */
 
 public interface HeadlessTask {
-    void onFetch(Context context);
+    void onFetch(Context context, String taskId);
 }
