@@ -1,9 +1,5 @@
 declare module "cordova-plugin-background-fetch" {
-	interface BackgroundFetchConfig {
-		/**
-		* The minimum interval in minutes to execute background fetch events.  Defaults to 15 minutes.  Minimum is 15 minutes.
-		*/
-		minimumFetchInterval?:number;
+	interface AbstractConfig {
 		/**
 		* [Android only] Set false to continue background-fetch events after user terminates the app.  Default to true.
 		*/
@@ -13,13 +9,13 @@ declare module "cordova-plugin-background-fetch" {
 		*/
 		startOnBoot?:boolean;
 		/**
-		* [Android only] Set true to automatically relaunch the application (if it was terminated) -- the application will launch to the foreground then immediately minimize.  Defaults to false.
-		*/
-		forceReload?:boolean;
-		/**
 		* [Android only] Set true to enable Headless mechanism for handling fetch events after app termination.
 		*/
 		enableHeadless?:boolean;
+		/**
+		* [Android only]
+		*/
+		forceAlarmManager?:boolean;
 		/**
 		* [Android only] Set detailed description of the kind of network your job requires.
 		*
@@ -54,6 +50,28 @@ declare module "cordova-plugin-background-fetch" {
 		requiresDeviceIdle?:boolean;
 	}
 
+	interface TaskConfig extends AbstractConfig {
+		/**
+		* The name of the task.  This will be used with [[BackgroundFetch.finish]] to signal task-completion.
+		*/
+		taskId:string;
+		/**
+		* The minimum interval in milliseconds to execute this task.
+		*/
+		delay:number;
+		/**
+		* Whether this task will continue executing or just a "one-shot".
+		*/
+		periodic?:boolean;
+	}
+
+	interface BackgroundFetchConfig extends AbstractConfig {
+		/**
+		* The minimum interval in minutes to execute background fetch events.  Defaults to 15 minutes.  Minimum is 15 minutes.
+		*/
+		minimumFetchInterval?:number;
+	}
+
 	/**
 	* | BackgroundFetchStatus              | Description                                     |
 	* |------------------------------------|-------------------------------------------------|
@@ -61,16 +79,17 @@ declare module "cordova-plugin-background-fetch" {
 	* | BackgroundFetch.STATUS_DENIED      | The user explicitly disabled background behavior for this app or for the whole system. |
 	* | BackgroundFetch.STATUS_AVAILABLE   | Background fetch is available and enabled.      |
 	*/
-	type BackgroundFetchResult = 0 | 1 | 2;
+	type BackgroundFetchStatus = 0 | 1 | 2;
 
 	/**
+	* @deprecated
 	* | BackgroundFetchResult                 | Description                                                   |
 	* |---------------------------------------|---------------------------------------------------------------|
 	* | BackgroundFetch.FETCH_RESULT_NEW_DATA | New data was successfully downloaded.                         |
 	* | BackgroundFetch.FETCH_RESULT_NO_DATA  | There was no new data to download.                            |
 	* | BackgroundFetch.FETCH_RESULT_FAILED   | An attempt to download data was made but that attempt failed. |
 	*/
-	type BackgroundFetchStatus = 0 | 1 | 2;
+	type BackgroundFetchResult = 0 | 1 | 2;
 
 	/**
 	* | NetworkType                           | Description                                                   |
@@ -99,15 +118,15 @@ declare module "cordova-plugin-background-fetch" {
 		*/
 		static STATUS_AVAILABLE: BackgroundFetchStatus;
 		/**
-		* New data was successfully downloaded.
+		* @deprecated New data was successfully downloaded.
 		*/
 		static FETCH_RESULT_NEW_DATA: BackgroundFetchResult;
 		/**
-		* There was no new data to download.
+		* @deprecated There was no new data to download.
 		*/
 		static FETCH_RESULT_NO_DATA: BackgroundFetchResult;
 		/**
-		* An attempt to download data was made but that attempt failed.
+		* @deprecated An attempt to download data was made but that attempt failed.
 		*/
 		static FETCH_RESULT_FAILED: BackgroundFetchResult;
 		/**
@@ -134,27 +153,25 @@ declare module "cordova-plugin-background-fetch" {
 		/**
 		* Initial configuration of BackgroundFetch, including config-options and Fetch-callback.  The [[start]] method will automatically be executed.
 		*/
-		static configure(callback:() => void, failure:(status:BackgroundFetchStatus) => void, config:BackgroundFetchConfig):void;
+		static configure(callback:(taskId:string) => void, failure:(status:BackgroundFetchStatus) => void, config:BackgroundFetchConfig):void;
 
 		/**
 		* Start subscribing to fetch events.
 		*/
 		static start(success?:() => void, failure?:(status:BackgroundFetchStatus) => void):void;
+
+		static scheduleTask(config:TaskConfig, success?:() => void, failure?:(error:string) => void);
+
+		static stopTask(taskId:string, success?:() => void, failure?:(error:string) => void);
+
 		/**
 		* Stop subscribing to fetch events.
 		*/
-		static stop():void;
+		static stop(success?:() => void, failure?:(error:string) => void):void;
 		/**
-		* You must execute [[finish]] within your fetch-callback to signal completion of your task.  You may optionally provide a [[BackgroundFetchResult]].  If no result is provided, default to FETCH_RESULT_NEW_DATA.
-		*
-		* | BackgroundFetchResult                 |
-		* |---------------------------------------|
-		* | BackgroundFetch.FETCH_RESULT_NEW_DATA |
-		* | BackgroundFetch.FETCH_RESULT_NO_DATA  |
-		* | BackgroundFetch.FETCH_RESULT_FAILED   |
-		*
+		* You must execute [[finish]] within your fetch-callback to signal completion of your task, providing the `taskId`.
 		*/
-		static finish(result?:BackgroundFetchResult):void;
+		static finish(taskId:string, success?:() => void, failure?:(error:string) => void):void;
 		/**
 		* Query the BackgroundFetch API status
 		*

@@ -11,8 +11,8 @@ import com.transistorsoft.tsbackgroundfetch.BackgroundFetch;
 
 public class BackgroundFetchHeadlessTask implements HeadlessTask {
     @Override
-    public void onFetch(Context context) {
+    public void onFetch(Context context, String taskId) {
         Log.d(BackgroundFetch.TAG, "BackgroundFetchHeadlessTask onFetch -- DEFAULT IMPLEMENTATION");
-        BackgroundFetch.getInstance(context).finish();
+        BackgroundFetch.getInstance(context).finish(taskId);
     }
 }

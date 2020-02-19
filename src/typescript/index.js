@@ -63,13 +63,21 @@ var BackgroundFetch = /** @class */ (function () {
         var fetch = plugin();
         return fetch.configure.apply(fetch, arguments);
     };
-    BackgroundFetch.finish = function () {
+    BackgroundFetch.finish = function (taskId) {
         var fetch = plugin();
         return fetch.finish.apply(fetch, arguments);
     };
     BackgroundFetch.start = function () {
         var fetch = plugin();
         return fetch.start.apply(fetch, arguments);
+    };
+    BackgroundFetch.scheduleTask = function (config, success, failure) {
+        var fetch = plugin();
+        return fetch.scheduleTask.apply(fetch, arguments);
+    };
+    BackgroundFetch.stopTask = function (taskId, success, failure) {
+        var fetch = plugin();
+        return fetch.stopTask.apply(fetch, arguments);
     };
     BackgroundFetch.stop = function () {
         var fetch = plugin();
