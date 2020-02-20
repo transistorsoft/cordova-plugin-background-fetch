@@ -1,4 +1,9 @@
 # CHANGELOG
+
+## [6.0.1] &mdash; 2020-02-20
+
+* [Android] Fix Android NPE on `hasTaskId` when launched first time after upgrading to v6
+
 ## [6.0.0] &mdash; 2020-02-19
 
 * [Added] [Android-only] New option `forceAlarmManager` for bypassing `JobScheduler` mechanism in favour of `AlarmManager` for more precise scheduling task execution.
