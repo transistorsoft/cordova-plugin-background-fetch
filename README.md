@@ -319,7 +319,7 @@ public class BackgroundFetchHeadlessTask implements HeadlessTask {
 2.  In your **`config.xml`**, add the following **`<resource-file>`** element to the **`<platform name="android">`**:
 ```xml
 <platform name="android">
-    <resource-file src="src/android/BackgroundFetchHeadlessTask.java" target="src/com/transistorsoft/cordova/backgroundfetch/BackgroundFetchHeadlessTask.java" />
+    <resource-file src="src/android/BackgroundFetchHeadlessTask.java" target="app/src/main/java/com/transistorsoft/cordova/backgroundfetch/BackgroundFetchHeadlessTask.java" />
 </platform>
 ```
 - `src`: path to your custom `BackgroundFetchHeadlessTask.java` file.
