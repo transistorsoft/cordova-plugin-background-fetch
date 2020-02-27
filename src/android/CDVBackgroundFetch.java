@@ -12,16 +12,12 @@ import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginResult;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
-import android.content.Intent;
-import android.support.annotation.Nullable;
 
 public class CDVBackgroundFetch extends CordovaPlugin {
-    private static final String JOB_SERVICE_CLASS = "HeadlessJobService";
 
     private static final String ACTION_SCHEDULE_TASK          = "scheduleTask";
 
-    private static final String FETCH_TASK_ID                       = "cordova-background-fetch";
+    private static final String FETCH_TASK_ID                 = "cordova-background-fetch";
 
     private static final String HEADLESS_JOB_SERVICE_CLASS = BackgroundFetchHeadlessTask.class.getName();
 
