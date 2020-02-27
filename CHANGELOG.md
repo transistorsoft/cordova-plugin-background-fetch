@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## [6.0.3] &mdash; 2020-02-27
+* [Fixed] [Android] Remove unused imports in `CDVBackgroundGeocation.java` causing problems with AndroidX.  Fixes #121.
+
 ## [6.0.2] &mdash; 2020-02-21
 * [Fixed] [Android] `stopOnTerminate` not cancelling scheduled job / Alarm when fired task fired after terminate.
 
