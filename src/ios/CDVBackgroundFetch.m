@@ -78,7 +78,12 @@ static NSString *const PLUGIN_ID = @"cordova-background-fetch";
         CDVPluginResult* result = nil;
         if (status == UIBackgroundRefreshStatusAvailable) {
             [fetchManager addListener:PLUGIN_ID callback:self->callback];
-            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+            NSError *error = [fetchManager start:nil];
+            if (!error) {
+                result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+            } else {
+                result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsInt:(int)error.code];
+            }
         } else {
             NSLog(@"[%@ start] ERROR: failed to start, status: %ld", TAG, (long) status);
             result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsInt:(int)status];

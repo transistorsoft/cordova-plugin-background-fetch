@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## [6.0.4] &mdash; 2020-03-24
+* [Fixed][iOS] Fix bug calling BackgroundFetch.start after BackgroundFetch.stop.
+
 ## [6.0.3] &mdash; 2020-02-27
 * [Fixed] [Android] Remove unused imports in `CDVBackgroundGeocation.java` causing problems with AndroidX.  Fixes #121.
 
