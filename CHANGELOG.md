@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## [6.0.6] &mdash; 2020-04-09
+* [Fixed] [Android] Fixed bug related to `6.0.5` referencing non existent `BackgroundGeolocationHeadlessTask`.  Define class-name as a hard-coded String instead.
+
+## [6.0.5] &mdash; 2020-04-09
+* [Changed] Don't install default `BackgroundGeolocationHeadlessTask.java`
+
 ## [6.0.4] &mdash; 2020-03-24
 * [Fixed][iOS] Fix bug calling BackgroundFetch.start after BackgroundFetch.stop.
 
