@@ -54,7 +54,7 @@
         <resource-file src="src/android/libs/tsbackgroundfetch" target="../../libs/tsbackgroundfetch" />
 
         <source-file src="src/android/CDVBackgroundFetch.java" target-dir="src/com/transistorsoft/cordova/backgroundfetch" />
-        <source-file src="src/android/BackgroundFetchHeadlessTask.java" target-dir="src/com/transistorsoft/cordova/backgroundfetch" />
+
         <source-file src="src/android/HeadlessTask.java" target-dir="src/com/transistorsoft/cordova/backgroundfetch" />
 
         <framework src="src/android/build.gradle" custom="true" type="gradleReference" />
