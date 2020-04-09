@@ -19,7 +19,7 @@ public class CDVBackgroundFetch extends CordovaPlugin {
 
     private static final String FETCH_TASK_ID                 = "cordova-background-fetch";
 
-    private static final String HEADLESS_JOB_SERVICE_CLASS = BackgroundFetchHeadlessTask.class.getName();
+    private static final String HEADLESS_JOB_SERVICE_CLASS = "com.transistorsoft.cordova.backgroundfetch.BackgroundFetchHeadlessTask";
 
     @Override
     protected void pluginInitialize() { }
