@@ -51,17 +51,6 @@ import Capacitor
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-  var window: UIWindow?
-
-  func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-    // Override point for customization after application launch.
-
-+   // Add for cordova-plugin-background-fetch
-+   TSBackgroundFetch.sharedInstance().didFinishLaunching();
-
-    return true
-  }
-
 + // Added for cordova-plugin-background-fetch
 + func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler:@escaping (UIBackgroundFetchResult) -> Void) {
 +   NSLog("AppDelegate received fetch event");
