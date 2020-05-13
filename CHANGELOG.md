@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## [6.0.7] &mdash; 2020-05-13
+* [Fixed][Android] Update gradle file for Capacitor-detection relative to `$projectDir` instead of `$userDir`.
+
 ## [6.0.6] &mdash; 2020-04-09
 * [Fixed] [Android] Fixed bug related to `6.0.5` referencing non existent `BackgroundGeolocationHeadlessTask`.  Define class-name as a hard-coded String instead.
 
