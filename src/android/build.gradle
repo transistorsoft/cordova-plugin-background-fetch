@@ -1,13 +1,12 @@
 def NAME = "cordova-plugin-background-fetch"
 
-def userDir = System.getProperty("user.dir")
 def libDir = "${projectDir}/libs"
 
-File capacitorConfig = new File("${userDir}/../capacitor.config.json")
+File capacitorConfig = new File("${projectDir}/../../capacitor.config.json")
 
 if (capacitorConfig.exists()) {
   // Capacitor app
-  libDir = "${userDir}/../node_modules/${NAME}/src/android/libs"
+  libDir = "${projectDir}/../../node_modules/${NAME}/src/android/libs"
   println("[${NAME}] Capacitor detected")
 }
 
