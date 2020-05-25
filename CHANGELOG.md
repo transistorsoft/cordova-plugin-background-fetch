@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## Unreleased
+* [Fixed] Android could fail to restart events when configured with forceAlarmManager: true.
+* [Fixed] Android check `wakeLock.isHeld()` before executing `wakeLock.release()`.
+
 ## [6.0.7] &mdash; 2020-05-13
 * [Fixed][Android] Update gradle file for Capacitor-detection relative to `$projectDir` instead of `$userDir`.
 
