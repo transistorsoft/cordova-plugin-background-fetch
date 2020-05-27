@@ -160,9 +160,9 @@ declare module "cordova-plugin-background-fetch" {
 		*/
 		static start(success?:() => void, failure?:(status:BackgroundFetchStatus) => void):void;
 
-		static scheduleTask(config:TaskConfig, success?:() => void, failure?:(error:string) => void);
+		static scheduleTask(config:TaskConfig, success?:() => void, failure?:(error:string) => void):void;
 
-		static stopTask(taskId:string, success?:() => void, failure?:(error:string) => void);
+		static stopTask(taskId:string, success?:() => void, failure?:(error:string) => void):void;
 
 		/**
 		* Stop subscribing to fetch events.
