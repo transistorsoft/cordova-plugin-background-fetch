@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## [6.0.8] &mdash; 2020-05-27
 * [Fixed] Android could fail to restart events when configured with forceAlarmManager: true.
 * [Fixed] Android check `wakeLock.isHeld()` before executing `wakeLock.release()`.
 
