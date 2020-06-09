@@ -1,17 +1,19 @@
 def NAME = "cordova-plugin-background-fetch"
 
-def libDir = "${projectDir}/libs"
+// Default libDir for Cordova/Ionic app.
+def libDir = "${projectDir}/../../../plugins/${NAME}/src/android/libs"
 
 File capacitorConfig = new File("${projectDir}/../../capacitor.config.json")
 
 if (capacitorConfig.exists()) {
-  // Capacitor app
-  libDir = "${projectDir}/../../node_modules/${NAME}/src/android/libs"
+  // Capacitor app detected.  libDir is from node_modules
+  def nodeModulesDir = (project.hasProperty("nodeModulesDirectory")) ? project.property("nodeModulesDirectory") : "../../node_modules"
+
+  libDir = "${projectDir}/${nodeModulesDir}/${NAME}/src/android/libs"
   println("[${NAME}] Capacitor detected")
 }
 
 println("[${NAME}] libDir: ${libDir}")
-
 
 repositories {
 	maven {
