@@ -12,7 +12,14 @@ if (capacitorConfig.exists()) {
 
 println("[${NAME}] libDir: ${libDir}")
 
+
+repositories {
+	maven {
+    	url libDir
+  	}
+}
+
 dependencies {
     // Load tsbackgroundfetch.aar
-    implementation fileTree(include: ['*.aar'], dir: "${libDir}/tsbackgroundfetch")
+    implementation(group: 'com.transistorsoft', name:'tsbackgroundfetch', version: '+')
 }
