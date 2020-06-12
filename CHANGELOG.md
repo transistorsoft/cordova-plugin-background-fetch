@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## [6.1.0] &mdash; 2020-06-12
+* [Fixed][Android] * `com.android.tools.build:gradle:4.0.0` no longer allows "*direct local aar dependencies*".  Re-package `tslocationmanager.aar` as a maven repo and add `maven url` in `build.gradle`.
+
 ## [6.0.8] &mdash; 2020-05-27
 * [Fixed] Android could fail to restart events when configured with forceAlarmManager: true.
 * [Fixed] Android check `wakeLock.isHeld()` before executing `wakeLock.release()`.
