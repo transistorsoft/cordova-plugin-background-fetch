@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## [6.1.1] &mdash; 2020-07-23
+[Fixed] Modify `plugin.xml` to copy android `libs` to `platforms/android/libs` rather than referencing from `/plugins/src/android/libs` -- this was not possible with *PhoneGap Build*.
+
 ## [6.1.0] &mdash; 2020-06-12
 * [Fixed][Android] * `com.android.tools.build:gradle:4.0.0` no longer allows "*direct local aar dependencies*".  Re-package `tslocationmanager.aar` as a maven repo and add `maven url` in `build.gradle`.
 
