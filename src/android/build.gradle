@@ -1,7 +1,7 @@
 def NAME = "cordova-plugin-background-fetch"
 
 // Default libDir for Cordova/Ionic app.
-def libDir = "${projectDir}/../../../plugins/${NAME}/src/android/libs"
+def libDir = "${projectDir}/libs"
 
 File capacitorConfig = new File("${projectDir}/../../capacitor.config.json")
 
