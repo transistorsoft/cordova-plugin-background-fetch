@@ -26,7 +26,9 @@ static NSString *const PLUGIN_ID = @"cordova-background-fetch";
 {
     BOOL enabled;
     BOOL configured;
-    void (^callback)(NSString*);
+    void (^fetchCallback)(NSString*);
+    void (^fetchTimeoutCallback)(NSString*);
+    void (^taskCallback)(NSString*, BOOL timeout);
 }
 
 - (void)pluginInitialize
@@ -42,30 +44,22 @@ static NSString *const PLUGIN_ID = @"cordova-background-fetch";
 
 - (void) configure:(CDVInvokedUrlCommand*)command
 {
-    __block id<CDVCommandDelegate> commandDelegate = self.commandDelegate;
-
-    self->callback = ^void(NSString *taskId){
-        NSLog(@"[%@ event] taskId: %@", TAG, taskId);
-        CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:taskId];
-        [result setKeepCallbackAsBool:YES];
-        [commandDelegate sendPluginResult:result callbackId:command.callbackId];
-    };
-
     TSBackgroundFetch *fetchManager = [TSBackgroundFetch sharedInstance];
 
     NSDictionary *config = [command.arguments objectAtIndex:0];
 
-    [fetchManager addListener:PLUGIN_ID callback:self->callback];
+    fetchCallback = [self createFetchCallback:command];
+    fetchTimeoutCallback = [self createFetchTimeoutCallback:command];
+    taskCallback = [self createTaskCallback:command];
+
+    [fetchManager addListener:PLUGIN_ID callback:fetchCallback timeout:fetchTimeoutCallback];
 
     NSTimeInterval delay = [[config objectForKey:@"minimumFetchInterval"] doubleValue] * 60;
 
     [fetchManager configure:delay callback:^(UIBackgroundRefreshStatus status) {
         self->configured = YES;
         if (status != UIBackgroundRefreshStatusAvailable) {
-            NSLog(@"[%@ configure] ERROR: failed to start, status: %ld", TAG, (long)status);
-            CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsInt:(int)status];
-            [result setKeepCallbackAsBool:NO];
-            [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+            NSLog(@"[%@ configure] ERROR: status: %ld", TAG, (long)status);
         }
     }];
 }
@@ -77,10 +71,10 @@ static NSString *const PLUGIN_ID = @"cordova-background-fetch";
     [fetchManager status:^(UIBackgroundRefreshStatus status) {
         CDVPluginResult* result = nil;
         if (status == UIBackgroundRefreshStatusAvailable) {
-            [fetchManager addListener:PLUGIN_ID callback:self->callback];
+            [fetchManager addListener:PLUGIN_ID callback:self->fetchCallback timeout:self->fetchTimeoutCallback];
             NSError *error = [fetchManager start:nil];
             if (!error) {
-                result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+                result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsInt:(int)status];
             } else {
                 result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsInt:(int)error.code];
             }
@@ -113,11 +107,16 @@ static NSString *const PLUGIN_ID = @"cordova-background-fetch";
     long delayMS = [[config objectForKey:@"delay"] longValue];
     NSTimeInterval delay = delayMS / 1000;
     BOOL periodic = [[config objectForKey:@"periodic"] boolValue];
+    BOOL requiresCharging = ([config objectForKey:@"requiresCharging"]) ? [[config objectForKey:@"requiresCharging"] boolValue] : NO;
+    BOOL requiresNetwork = ([config objectForKey:@"requiresNetworkConnectivity"]) ? [[config objectForKey:@"requiresNetworkConnectivity"] boolValue] : NO;
+
 
     NSError *error = [[TSBackgroundFetch sharedInstance] scheduleProcessingTaskWithIdentifier:taskId
                                                                                         delay:delay
                                                                                      periodic:periodic
-                                                                                     callback:self->callback];
+                                                                        requiresExternalPower:requiresCharging
+                                                                  requiresNetworkConnectivity:requiresNetwork
+                                                                                     callback:self->taskCallback];
     CDVPluginResult *result;
     if (!error) {
         result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -146,6 +145,42 @@ static NSString *const PLUGIN_ID = @"cordova-background-fetch";
         [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
     }];
 }
+
+-(void(^)(NSString* taskId)) createFetchCallback:(CDVInvokedUrlCommand*)command {
+    __block id<CDVCommandDelegate> commandDelegate = self.commandDelegate;
+    return ^void(NSString* taskId) {
+        NSLog(@"[%@ event] fetch taskId: %@", TAG, taskId);
+        CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:taskId];
+        [result setKeepCallbackAsBool:YES];
+        [commandDelegate sendPluginResult:result callbackId:command.callbackId];
+    };
+}
+
+-(void (^)(NSString* taskId)) createFetchTimeoutCallback:(CDVInvokedUrlCommand*)command {
+    __block id<CDVCommandDelegate> commandDelegate = self.commandDelegate;
+    return ^void(NSString* taskId) {
+        NSLog(@"[%@ event] fetch TIMEOUT taskId: %@", TAG, taskId);
+        CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:taskId];
+        [result setKeepCallbackAsBool:YES];
+        [commandDelegate sendPluginResult:result callbackId:command.callbackId];
+    };
+}
+
+-(void (^)(NSString* taskId, BOOL timeout)) createTaskCallback:(CDVInvokedUrlCommand*)command {
+    __block id<CDVCommandDelegate> commandDelegate = self.commandDelegate;
+    return ^void(NSString* taskId, BOOL timeout){
+        NSLog(@"[%@ event] scheduleTask callback taskId: %@, timeout: %d", TAG, taskId, timeout);
+        CDVPluginResult *result;
+        if (!timeout) {
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:taskId];
+        } else {
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:taskId];
+        }
+        [result setKeepCallbackAsBool:YES];
+        [commandDelegate sendPluginResult:result callbackId:command.callbackId];
+    };
+}
+
 
 - (void)dealloc
 {

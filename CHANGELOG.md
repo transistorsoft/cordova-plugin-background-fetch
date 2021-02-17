@@ -1,5 +1,106 @@
 # CHANGELOG
 
+## [7.0.0] &mdash; 2021-02-17
+
+* [Added][iOS] Implement two new iOS options for `BackgroundFetch.scheduleTask`:
+    - `bool requiresNetworkConnectivity`
+    - `bool requiresCharging` (previously Android-only).
+
+* [Changed][iOS] Migrate `TSBackgroundFetch.framework` to new `.xcframework` for *MacCatalyst* support with new Apple silcon.
+
+### :warning: Breaking Change:  Requires `cocoapods >= 1.10+`.
+
+*iOS'* new `.xcframework` requires *cocoapods >= 1.10+*:
+
+```bash
+$ pod --version
+// if < 1.10.0
+$ sudo gem install cocoapods
+```
+
+* [Added] task-timeout callback, executed when the operating system has signalled your remaining background-time is about to expire.  You must stop what you're doing and immediately call `BackgroundFetch.finish(taskId)`
+
+### :warning: Breaking Change:  arguments to `BackgroundFetch.configure`
+
+The method-signature for `BackgroundFetch.configure` **has dramatically changed** and now returns `Promise<BackgroundFetchStatus>`.
+
+#### OLD:
+
+When `BackgroundFetch` failed to start (eg: user disabled "Background Fetch" permission in your app settings), the *2nd argument* `failureCallback` would fire with the current `BackgroundFetchStatus`.
+
+```javascript
+BackgroundFetch.configure(eventCallback, failureCallback, config);
+```
+
+#### NEW:
+
+```javascript
+let status = await BackgroundFetch.configure(config, eventCallback, timeoutCallback);
+```
+
+The current `BackgroundFetchStatus` is now returned as a `Promise` when calling `.configure()`.  The `BackgroundFetchConfig` has moved from *3rd position* to *1st position*.  The *3rd argument* is now `timeoutCallback`, executed when OS has signalled your allowed background time is about to expire:
+
+- `@param BackgroundFetchConfig` Configuration object.
+- `@param Function` Event callback function.
+- `@param Function` Event timeout callback function. This callback will be executed when the operating system has signalled your background-time is about to expire.
+
+```javascript
+// Usual config object.
+let config = {minimumFetchInterval: 15};
+
+// Usual BackgroundFetch event handler.
+let eventCallback = async (taskId) => {  // <-- task callback.
+  console.log('[BackgroundFetch] task: ', taskId);
+  // Do your background work...
+  BackgroundFetch.finish(taskId);
+}
+
+// NEW:  Timeout callback is executed when your Task has exceeded its allowed running-time.
+// You must stop what you're doing immediately BackgroundFetch.finish(taskId)
+let timeoutCallback = async (taskId) => {
+  console.warn('[BackgroundFetch] TIMEOUT task: ', taskId);
+  BackgroundFetch.finish(taskId);
+}
+
+// BackgroundFetch now returns a Promise<BackgroundFetchStatus> and the order-of-arguments
+// has significantly changed.
+let status = await BackgroundFetch.configure(config, eventCallback, timeoutCallback);
+
+console.log('[BackgroundFetch] configure status: ', status);
+```
+
+### :warning: [Android] Breaking Change For Android Headless-task
+
+- In order to differentiate *task timeout* events, the *Android Headless Task* now receives a `BGTask task` instance instead of `String taskId`.  When the OS signals your allowed background-time is about to expire, `task.getTimedOut()` will return `true`.  `taskId` is available via `task.getTaskId()`.
+
+```java
+package com.transistorsoft.cordova.backgroundfetch;
+
+import android.content.Context;
+import android.util.Log;
+
+import com.transistorsoft.tsbackgroundfetch.BackgroundFetch;
+import com.transistorsoft.tsbackgroundfetch.BGTask;  // <-- NEW:  import BGTask
+
+public class BackgroundFetchHeadlessTask implements HeadlessTask {
+    @Override
+    public void onFetch(Context context, BGTask task) {  // <-- NEW:  BGTask instead of String taskId.
+        String taskId     = task.getTaskId();
+        boolean isTimeout = task.getTimedOut();
+        if (isTimeout) {
+            // The operating system has signalled your background-time is about to expire.
+            // You must stop what you're doing and immediately call .finish(taskId).
+            Log.d(BackgroundFetch.TAG, "BackgroundFetchHeadlessTask onFetch TIMEOUT taskId: " + task.getTaskId());
+            BackgroundFetch.getInstance(context).finish(taskId);
+            return;
+        }
+        Log.d(BackgroundFetch.TAG, "BackgroundFetchHeadlessTask onFetch: taskId: " + task.getTaskId());
+        // Do your background work here...
+        BackgroundFetch.getInstance(context).finish(taskId);
+    }
+}
+```
+
 ## [6.1.1] &mdash; 2020-07-23
 [Fixed] Modify `plugin.xml` to copy android `libs` to `platforms/android/libs` rather than referencing from `/plugins/src/android/libs` -- this was not possible with *PhoneGap Build*.
 

@@ -153,7 +153,7 @@ declare module "cordova-plugin-background-fetch" {
 		/**
 		* Initial configuration of BackgroundFetch, including config-options and Fetch-callback.  The [[start]] method will automatically be executed.
 		*/
-		static configure(callback:(taskId:string) => void, failure:(status:BackgroundFetchStatus) => void, config:BackgroundFetchConfig):void;
+		static configure(config:BackgroundFetchConfig, onEvent:(taskId:string) => void, onTimeout:(taskId:string) => void):Promise<BackgroundFetchStatus>;
 
 		/**
 		* Start subscribing to fetch events.
