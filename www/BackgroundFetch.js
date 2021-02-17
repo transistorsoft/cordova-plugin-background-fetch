@@ -26,10 +26,15 @@ var exec = require("cordova/exec");
 var EMPTY_FN = function() {}
 
 var MODULE = "BackgroundFetch";
+
+var STATUS_RESTRICTED = 0;
+var STATUS_DENIED     = 1;
+var STATUS_AVAILABLE  = 2;
+
 module.exports = {
-    STATUS_RESTRICTED: 0,
-    STATUS_DENIED: 1,
-    STATUS_AVAILABLE: 2,
+    STATUS_RESTRICTED: STATUS_RESTRICTED,
+    STATUS_DENIED: STATUS_DENIED,
+    STATUS_AVAILABLE: STATUS_AVAILABLE,
 
     FETCH_RESULT_NEW_DATA: 0,
     FETCH_RESULT_NO_DATA:  1,
@@ -41,13 +46,38 @@ module.exports = {
     NETWORK_TYPE_NOT_ROAMING: 3,
     NETWORK_TYPE_CELLULAR:    4,
 
-    configure: function(callback, failure, config) {
-        if (typeof(callback) !== 'function') {
-            throw "BackgroundFetch configure error:  You must provide a callback function as 1st argument";
+    configure: function(config, onEvent, onTimeout) {
+        if (typeof(config) !== 'object') {
+            throw "[BackgroundFetch] configure error: the first argument to #configure is the Config {}";
         }
-        config = config || {};
-        failure = failure || EMPTY_FN;
-        exec(callback, failure, MODULE, 'configure', [config]);
+        if (typeof(onEvent) !== 'function') {
+            throw "[BackgroundFetch] configure error:  You must provide the fetch callback function as 2nd argument to #configure method";
+        }
+        if (typeof(onTimeout) !== 'function') {
+            console.warn("[BackgroundFetch] configure:  You did not provide a 3rd argument onTimeout callback.  This callback is a signal from the OS that your allowed background time is about to expire.  Use this callback to finish what you're doing and immediately call BackgroundFetch.finish(taskId)");
+            onTimeout = function(taskId) {
+                console.warn('[BackgroundFetch] default onTimeout callback fired.  You should provide your own onTimeout callbcak to .configure(options, onEvent, onTimeout)');
+                BackgroundFetch.finish(taskId);
+            };
+        }
+        return new Promise(function(resolve, reject) {
+            // Cordova can only accept 2 callbacks:  one for success another for failure.
+            // However, we're using the provided onEvent / onTimeout callbacks for firing
+            // our events.  So first we execute a call to 'configure' followed by a call to
+            // 'status' and grab the result.  We'll resolve the Promise with the 'status'.
+            //
+            var onStatus = function(status) {
+                if (status === STATUS_AVAILABLE) {
+                    resolve(status);
+                } else {
+                    reject(status);
+                }
+            };
+            // 1:  Call 'configure'
+            exec(onEvent, onTimeout, MODULE, 'configure', [config]);
+            // 2:  get the "status"
+            exec(onStatus, onStatus, MODULE, 'status');
+        });
     },
 
     finish: function(taskId, success, failure) {

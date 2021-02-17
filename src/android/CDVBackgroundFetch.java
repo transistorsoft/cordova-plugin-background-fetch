@@ -12,6 +12,7 @@ import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginResult;
 
 import android.annotation.TargetApi;
+import android.util.Log;
 
 public class CDVBackgroundFetch extends CordovaPlugin {
 
@@ -25,6 +26,7 @@ public class CDVBackgroundFetch extends CordovaPlugin {
     protected void pluginInitialize() { }
 
     public boolean execute(String action, JSONArray data, CallbackContext callbackContext) throws JSONException {
+        Log.d(BackgroundFetch.TAG, "[CDVBackgroundFetch] " + action + "()");
         boolean result = false;
         if (BackgroundFetch.ACTION_CONFIGURE.equalsIgnoreCase(action)) {
             result = true;
@@ -57,6 +59,11 @@ public class CDVBackgroundFetch extends CordovaPlugin {
         adapter.configure(config.build(), new BackgroundFetch.Callback() {
             @Override public void onFetch(String taskId) {
                 PluginResult result = new PluginResult(PluginResult.Status.OK, taskId);
+                result.setKeepCallback(true);
+                callbackContext.sendPluginResult(result);
+            }
+            @Override public void onTimeout(String taskId) {
+                PluginResult result = new PluginResult(PluginResult.Status.ERROR, taskId);
                 result.setKeepCallback(true);
                 callbackContext.sendPluginResult(result);
             }

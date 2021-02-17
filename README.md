@@ -16,10 +16,26 @@ There is **no way** to increase the rate which a fetch-event occurs and this plu
 ### iOS
 - There is **no way** to increase the rate which a fetch-event occurs and this plugin sets the rate to the most frequent possible &mdash; you will **never** receive an event faster than **15 minutes**.  The operating-system will automatically throttle the rate the background-fetch events occur based upon usage patterns.  Eg: if user hasn't turned on their phone for a long period of time, fetch events will occur less frequently.
 - [__`scheduleTask`__](#executing-custom-tasks) seems only to fire when the device is plugged into power.
+- ⚠️ When your app is **terminated**, iOS *no longer fires events* &mdash; There is *no such thing* as **`stopOnTerminate: false`** for iOS.
+- iOS can take *days* before Apple's machine-learning algorithm settles in and begins regularly firing events.  Do not sit staring at your logs waiting for an event to fire.  If your [*simulated events*](#debugging-1) work, that's all you need to know that everything is correctly configured.
+- If the user doesn't open your *iOS* app for long periods of time, *iOS* will **stop firing events**.
 
 ### Android
 - The Android plugin provides a [Headless](#config-boolean-enableheadless-false) implementation allowing you to continue handling events even after app terminate.
 
+-------------------------------------------------------------
+
+# Contents
+- ### :books: [API Documentation](#api-documentation)
+  - [Config](#config)
+  - [Methods](#methods)
+- ### [Using the plugin](#using-the-plugin-1)
+- ### [Installing the Plugin](#installing-the-plugin-1)
+- ### [Setup Guides](#setup)
+- ### [Example](#example-1)
+- ### [Debugging](#debugging-1)
+
+-------------------------------------------------------------
 
 ## Using the plugin ##
 
@@ -34,6 +50,13 @@ import BackgroundFetch from "cordova-plugin-background-fetch";
 
 
 ## Installing the plugin ##
+
+#### :warning: *Cocoapods* >= `1.10.0` is required:
+```console
+$ pod --version
+// if < 1.10.0
+$ sudo gem install cocoapods
+```
 
 - ### Ionic
 ```
@@ -53,13 +76,10 @@ npx cap sync
 ```
 :information_source: See [Capacitor Setup](./docs/INSTALL_CAPACITOR.md)
 
-- ### PhoneGap Build
 
-```xml
-  <plugin name="cordova-plugin-background-fetch" source="npm" />
-```
+## Setup
 
-## iOS Setup [:new: __iOS 13+__]
+### iOS Setup
 
 If you intend to execute your own [custom tasks](#executing-custom-tasks) via **`BackgroundFetch.scheduleTask`**, for example:
 
@@ -97,29 +117,32 @@ You must register these custom *task-identifiers* with your iOS app's __`Info.pl
 
 ### Pure Cordova Javascript (eg: Ionic 1)
 ```javascript
-onDeviceReady: function() {
+onDeviceReady: async function() {
   var BackgroundFetch = window.BackgroundFetch;
 
-  // Your background-fetch handler.
-  var fetchCallback = function(taskId) {
-    console.log('[js] BackgroundFetch event received: ', taskId);
-    // Required: Signal completion of your task to native code
-    // If you fail to do this, the OS can terminate your app
-    // or assign battery-blame for consuming too much background-time
-    BackgroundFetch.finish(taskId);
+  // Your BackgroundFetch event handler.
+  var onEvent = async function(taskId) {
+      console.log('[BackgroundFetch] event received: ', taskId);
+      // Required: Signal completion of your task to native code
+      // If you fail to do this, the OS can terminate your app
+      // or assign battery-blame for consuming too much background-time
+      BackgroundFetch.finish(taskId);
   };
 
-  var failureCallback = function(error) {
-    console.log('- BackgroundFetch failed', error);
+  // Timeout callback is executed when your Task has exceeded its allowed running-time.
+  // You must stop what you're doing immediately BackgroundFetch.finish(taskId)
+  var onTimeout = async function(taskId) {
+      console.log('[BackgroundFetch] TIMEOUT: ', taskId);
+      BackgroundFetch.finish(taskId);
   };
 
-  BackgroundFetch.configure(fetchCallback, failureCallback, {
-    minimumFetchInterval: 15 // <-- default is 15
-  });
+  var status = await BackgroundFetch.configure({minimumFetchInterval: 15}, onEvent, onTimeout);
+  console.log('[BackgroundFetch] configure status: ', status);
 }
 ```
 
 ### Ionic 2+ Example
+
 ```javascript
 import { Component } from '@angular/core';
 import { NavController, Platform } from 'ionic-angular';
@@ -135,39 +158,45 @@ export class HomePage {
     this.platform.ready().then(this.onDeviceReady.bind(this));
   }
 
-  onDeviceReady() {
-    // Your background-fetch handler.
-    let fetchCallback = function(taskId) {
-        console.log('[js] BackgroundFetch event received: ', taskId);
+  async onDeviceReady() {
+    // Your BackgroundFetch event handler.
+    let onEvent = async (taskId) => {
+        console.log('[BackgroundFetch] event received: ', taskId);
         // Required: Signal completion of your task to native code
         // If you fail to do this, the OS can terminate your app
         // or assign battery-blame for consuming too much background-time
         BackgroundFetch.finish(taskId);
     };
 
-    let failureCallback = function(error) {
-        console.log('- BackgroundFetch failed', error);
+    // Timeout callback is executed when your Task has exceeded its allowed running-time.
+    // You must stop what you're doing immediately BackgroundFetch.finish(taskId)
+    let onTimeout = async (taskId) => {
+        console.log('[BackgroundFetch] TIMEOUT: ', taskId);
+        BackgroundFetch.finish(taskId);
     };
 
-    BackgroundFetch.configure(fetchCallback, failureCallback, {
-        minimumFetchInterval: 15 // <-- default is 15
-    });
+    // Configure the plugin.
+    let status = await BackgroundFetch.configure({minimumFetchInterval: 15}, onEvent, onTimeout);
+    console.log('[BackgroundFetch] configure, status: ', status);
   }
 }
 ```
 
 ### Executing Custom Tasks
 
-In addition to the default background-fetch task defined by `BackgroundFetch.configure`, you may also execute your own arbitrary "oneshot" or periodic tasks (iOS requires additional [Setup Instructions](#ios-setup-new-ios-13)).  However, all events will be fired into the Callback provided to **`BackgroundFetch#configure`**:
+In addition to the default background-fetch task defined by `BackgroundFetch.configure`, you may also execute your own arbitrary "oneshot" or periodic tasks (iOS requires additional [Setup Instructions](#setup)).  However, all events will be fired into the Callback provided to **`BackgroundFetch#configure`**:
 
-__:warning: iOS__:  Custom iOS tasks seem only to run while device is plugged into power.  Hopefully Apple changes this in the future.
+### ⚠️ iOS:
+- `scheduleTask` on *iOS* seems only to run when the device is plugged into power.
+- `scheduleTask` on *iOS* are designed for *low-priority* tasks, such as purging cache files &mdash; they tend to be **unreliable for mission-critical tasks**.  `scheduleTask` will *never* run a frequently as you want.
+- The default `fetch` event is much more reliable and fires far more often.
+- `scheduleTask` on *iOS* stop when the *user* terminates the app.  There is no such thing as `stopOnTerminate: false` for *iOS*.
 
 ```javascript
 // Step 1:  Configure BackgroundFetch as usual.
-BackgroundFetch.configure({
+let status = await BackgroundFetch.configure({
   minimumFetchInterval: 15
-), (taskId) => {
-  // This is the fetch-event callback.
+}, (taskId) => {  // <-- Event callback.
   console.log("[BackgroundFetch] taskId: ", taskId);
 
   // Use a switch statement to route task-handling.
@@ -180,6 +209,11 @@ BackgroundFetch.configure({
   }
   // Finish, providing received taskId.
   BackgroundFetch.finish(taskId);
+}, (taskId) => {  // <-- Task timeout callback.
+  // This task has exceeded its allowed running-time.
+  // You must stop what you're doing and immediately .finish(taskId)
+  console.log('[BackgroundFetch] TIMEOUT taskId: ', taskId);
+  BackgroundFetch.finish(taskId);
 });
 
 // Step 2:  Schedule a custom "oneshot" task "com.transistorsoft.customtask" to execute 5000ms from now.
@@ -189,6 +223,7 @@ BackgroundFetch.scheduleTask({
   delay: 5000  // <-- milliseconds
 });
 ```
+# API Documentation
 
 ## Config
 
@@ -225,11 +260,16 @@ By default, the plugin will use Android's `JobScheduler` when possible.  The `Jo
 Configuring `forceAlarmManager: true` will bypass `JobScheduler` to use Android's older `AlarmManager` API, resulting in more accurate task-execution at the cost of **higher battery usage**.
 
 ```javascript
-BackgroundFetch.configure({
+let status = await BackgroundFetch.configure({
   minimumFetchInterval: 15,
   forceAlarmManager: true
 }, async (taskId) => {
   console.log("[BackgroundFetch] taskId: ", taskId);
+  BackgroundFetch.finish(taskId);
+}, async (taskId) => {
+  // This task has exceeded its allowed running-time.
+  // You must stop what you're doing and immediately .finish(taskId)
+  console.log('[BackgroundFetch] TIMEOUT taskId: ', taskId);
   BackgroundFetch.finish(taskId);
 });
 .
@@ -302,13 +342,21 @@ eg: :open_file_folder: **`src/android/BackgroundFetchHeadlessTask.java`**
 package com.transistorsoft.cordova.backgroundfetch;
 import android.content.Context;
 import com.transistorsoft.tsbackgroundfetch.BackgroundFetch;
+import com.transistorsoft.tsbackgroundfetch.BGTask;
 import android.util.Log;
 
 public class BackgroundFetchHeadlessTask implements HeadlessTask {
     @Override
-    public void onFetch(Context context, String taskId) {
+    public void onFetch(Context context, BGTask task) {
+        String taskId = task.getTaskId();
+        boolean isTimeout = task.getTimedOut();
+        if (isTimeout) {
+          Log.d(BackgroundFetch.TAG, "My BackgroundFetchHeadlessTask TIMEOUT: " + taskId);
+          BackgroundFetch.getInstance(context).finish(taskId);
+          return;
+        }
         Log.d(BackgroundFetch.TAG, "My BackgroundFetchHeadlessTask:  onFetch: " + taskId);
-        // Perform your work here.
+        // Perform your work here....
 
         // Just as in Javascript callback, you must signal #finish
         BackgroundFetch.getInstance(context).finish(taskId);
@@ -331,15 +379,15 @@ This will copy your custom Java source-file into the `cordova-plugin-background-
 
 ## Methods
 
-| Method Name | Arguments | Notes
-|---|---|---|
-| `configure` | `callbackFn`, `failureFn`, `{BackgroundFetchConfig}` | Configures the plugin's fetch `callbackFn`.  This callback will fire each time an iOS background-fetch event occurs (typically every 15 min).  The `failureFn` will be called if the device doesn't support background-fetch. |
-| `scheduleTask` | `{TaskConfig}` | Executes a custom task.  The task will be executed in the same `Callback` function provided to `#configure`. |
-| `stopTask` | `String taskId`, `successFn`,`failureFn` | Stops a `scheduleTask` from running. |
-| `finish` | `String taskId` | You **MUST** call this method in your `callbackFn` provided to `#configure` in order to signal to the OS that your task is complete.  iOS provides **only** 30s of background-time for a fetch-event -- if you exceed this 30s, iOS will kill your app. |
-| `start` | `successFn`, `failureFn` | Start the background-fetch API.  Your `callbackFn` provided to `#configure` will be executed each time a background-fetch event occurs.  **NOTE** the `#configure` method *automatically* calls `#start`.  You do **not** have to call this method after you `#configure` the plugin |
-| `stop` | `successFn`, `failureFn` | Stop the background-fetch API from firing fetch events.  Your `callbackFn` provided to `#configure` will no longer be executed. |
-| `status` | `callbackFn` | Your callback will be executed with the current `status (Integer)` `0: Restricted`, `1: Denied`, `2: Available`.  These constants are defined as `BackgroundFetch.STATUS_RESTRICTED`, `BackgroundFetch.STATUS_DENIED`, `BackgroundFetch.STATUS_AVAILABLE` (**NOTE:** Android will always return `STATUS_AVAILABLE`)|
+| Method Name | Arguments | Returns | Notes |
+|-------------|-----------|---------|-------|
+| `configure` | `{BackgroundFetchConfig}`, `callbackFn`, `timeoutFn` | `Promise<BackgroundFetchStatus>` | Configures the plugin's fetch `callbackFn` and `timeoutFn`.  This `callbackFn` will fire each time an iOS background-fetch event occurs (typically every 15 min).  The `timeoutFn` will be called when the OS reports your task is nearing the end of its allowed background-time. |
+| `scheduleTask` | `{TaskConfig}` | `Void` | Executes a custom task.  The task will be executed in the same `Callback` function provided to `#configure`. |
+| `stopTask` | `String taskId`, `successFn`,`failureFn` | `Void` | Stops a `scheduleTask` from running. |
+| `finish` | `String taskId` | `Void` | You **MUST** call this method in your `callbackFn` provided to `#configure` in order to signal to the OS that your task is complete.  iOS provides **only** 30s of background-time for a fetch-event -- if you exceed this 30s, iOS will kill your app. |
+| `start` | `successFn`, `failureFn` | `Void` | Start the background-fetch API.  Your `callbackFn` provided to `#configure` will be executed each time a background-fetch event occurs.  **NOTE** the `#configure` method *automatically* calls `#start`.  You do **not** have to call this method after you `#configure` the plugin |
+| `stop` | `successFn`, `failureFn` | `Void` | Stop the background-fetch API from firing fetch events.  Your `callbackFn` provided to `#configure` will no longer be executed. |
+| `status` | `callbackFn` | `Void` | Your callback will be executed with the current `status (Integer)` `0: Restricted`, `1: Denied`, `2: Available`.  These constants are defined as `BackgroundFetch.STATUS_RESTRICTED`, `BackgroundFetch.STATUS_DENIED`, `BackgroundFetch.STATUS_AVAILABLE` (**NOTE:** Android will always return `STATUS_AVAILABLE`)|
 
 
 ## Debugging
@@ -364,6 +412,33 @@ e -l objc -- (void)[[BGTaskScheduler sharedScheduler] _simulateLaunchForTaskWith
 
 ![](https://dl.dropboxusercontent.com/s/bsv0avap5c2h7ed/ios-simulate-bgtask-play.png?dl=1)
 
+#### Simulating task-timeout events
+
+First comment-out your call to `BackgroundFetch.finish(taskId)` in your `eventCallback` to simulate a task taking too long.
+
+```javascript
+let status = await BackgroundFetch.configure({
+  minimumFetchInterval: 15
+}, async (taskId) => {  // <-- Event callback.
+  // This is the task callback.
+  console.log("[BackgroundFetch] taskId", taskId);
+  ////
+  // NOTE:  Disable BackgroundFetch.finish(taskId) when simulating an iOS task timeout
+  //BackgroundFetch.finish(taskId);
+  //
+}, async (taskId) => {  // <-- Event timeout callback
+  // This task has exceeded its allowed running-time.
+  // You must stop what you're doing and immediately .finish(taskId)
+  print("[BackgroundFetch] TIMEOUT taskId:", taskId);
+  BackgroundFetch.finish(taskId);
+});
+```
+
+- Now simulate an iOS task timeout as follows, in the same manner as simulating an event above:
+```obj-c
+e -l objc -- (void)[[BGTaskScheduler sharedScheduler] _simulateExpirationForTaskWithIdentifier:@"com.transistorsoft.fetch"]
+```
+
 #### Old `BackgroundFetch` API
 - Simulate background fetch events in XCode using **`Debug->Simulate Background Fetch`**
 - iOS can take some hours or even days to start a consistently scheduling background-fetch events since iOS schedules fetch events based upon the user's patterns of activity.  If *Simulate Background Fetch* works, your can be **sure** that everything is working fine.  You just need to wait.
@@ -383,16 +458,6 @@ $ adb shell cmd jobscheduler run -f <your.application.id> 999
 $ adb shell am broadcast -a <your.application.id>.event.BACKGROUND_FETCH
 
 ```
-
-## iOS
-
-Implements [BGTaskScheduler](https://developer.apple.com/documentation/backgroundtasks/bgtaskscheduler?language=objc) for devices running iOS 13+ in addition to [performFetchWithCompletionHandler](https://developer.apple.com/library/ios/documentation/UIKit/Reference/UIApplicationDelegate_Protocol/Reference/Reference.html#//apple_ref/occ/intfm/UIApplicationDelegate/application:performFetchWithCompletionHandler:) for devices <iOS 13, firing a custom event subscribed-to in cordova plugin.  Unfortunately, iOS automatically ceases background-fetch events when the *user* explicitly terminates the application or reboots the device.
-
-## Android
-
-Android implements background fetch using two different mechanisms, depending on the Android SDK version.  Where the SDK version is `>= LOLLIPOP`, the new [`JobScheduler`](https://developer.android.com/reference/android/app/job/JobScheduler.html) API is used.  Otherwise, the old [`AlarmManager`](https://developer.android.com/reference/android/app/AlarmManager.html) will be used.
-
-Unlike iOS, the Android implementation *can* continue to operate after application terminate (`stopOnTerminate: false`) or device reboot (`startOnBoot: true`).
 
 ## Licence ##
 
