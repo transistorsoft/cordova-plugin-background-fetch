@@ -7,9 +7,9 @@ By [**Transistor Software**](https://www.transistorsoft.com), creators of [**Cor
 
 ------------------------------------------------------------------------------
 
-Background Fetch is a *very* simple plugin for iOS &amp; Android which will awaken an app in the background about **every 15 minutes**, providing a short period of background running-time.  This plugin will execute your provided `callbackFn` whenever a background-fetch event occurs.
+Background Fetch is a *very* simple plugin which attempts to awaken an app in the background about **every 15 minutes**, providing a short period of background running-time.  This plugin will execute your provided `callbackFn` whenever a background-fetch event occurs.
 
-There is **no way** to increase the rate which a fetch-event occurs and this plugin sets the rate to the most frequent possible &mdash; you will **never** receive an event faster than **15 minutes**.  The operating-system will automatically throttle the rate the background-fetch events occur based upon usage patterns.  Eg: if user hasn't turned on their phone for a long period of time, fetch events will occur less frequently.
+There is **no way** to increase the rate which a fetch-event occurs and this plugin sets the rate to the most frequent possible &mdash; you will **never** receive an event faster than **15 minutes**.  The operating-system will automatically throttle the rate the background-fetch events occur based upon usage patterns.  Eg: if user hasn't turned on their phone for a long period of time, fetch events will occur less frequently or if an iOS user disables background refresh they may not happen at all.
 
 :new: Background Fetch now provides a [__`scheduleTask`__](#executing-custom-tasks) method for scheduling arbitrary "one-shot" or periodic tasks.
 
@@ -188,7 +188,7 @@ In addition to the default background-fetch task defined by `BackgroundFetch.con
 
 ### ⚠️ iOS:
 - `scheduleTask` on *iOS* seems only to run when the device is plugged into power.
-- `scheduleTask` on *iOS* are designed for *low-priority* tasks, such as purging cache files &mdash; they tend to be **unreliable for mission-critical tasks**.  `scheduleTask` will *never* run a frequently as you want.
+- `scheduleTask` on *iOS* are designed for *low-priority* tasks, such as purging cache files &mdash; they tend to be **unreliable for mission-critical tasks**.  `scheduleTask` will *never* run as frequently as you want.
 - The default `fetch` event is much more reliable and fires far more often.
 - `scheduleTask` on *iOS* stop when the *user* terminates the app.  There is no such thing as `stopOnTerminate: false` for *iOS*.
 
@@ -288,7 +288,7 @@ BackgroundFetch.scheduleTask({
 
 Set basic description of the kind of network your job requires.
 
-If your job doesn't need a network connection, you don't need use this options as the default value is `BackgroundFetch.NETWORK_TYPE_NONE`.
+If your job doesn't need a network connection, you don't need to use this option as the default value is `BackgroundFetch.NETWORK_TYPE_NONE`.
 
 | NetworkType                           | Description                                                         |
 |---------------------------------------|---------------------------------------------------------------------|
