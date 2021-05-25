@@ -1,5 +1,7 @@
 # CHANGELOG
 
+## [7.0.2] &mdash; 2021-05-25
+* [Fixed][Android] Android failed to detect Capacitor v3 apps.  capacitor.config.json vs capacitor.config.[js|ts]
 ## [7.0.1] &mdash; 2021-02-18
 * [Fixed][Android] Fix `java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.String com.transistorsoft.tsbackgroundfetch.BGTask.getTaskId()' on a null object reference`
 
