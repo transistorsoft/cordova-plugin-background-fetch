@@ -4,6 +4,13 @@ def NAME = "cordova-plugin-background-fetch"
 def libDir = "${projectDir}/libs"
 
 File capacitorConfig = new File("${projectDir}/../../capacitor.config.json")
+if (!capacitorConfig.exists()) {
+  // Capacitor V3?
+  capacitorConfig = new File("${projectDir}/../../capacitor.config.ts")
+}
+if (!capacitorConfig.exists()) {
+  capacitorConfig = new File("${projectDir}/../../capacitor.config.js")
+}
 
 if (capacitorConfig.exists()) {
   // Capacitor app detected.  libDir is from node_modules
