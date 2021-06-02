@@ -1,5 +1,9 @@
 # Capacitor Setup
 
+-------------------------------------------------------------------------------
+### :new: :stop_sign: *Capacitor* version now available! See [__`capacitor-background-fetch`__](https://github.com/transistorsoft/capacitor-background-fetch) :stop_sign:
+-------------------------------------------------------------------------------
+
 ```
 npm install cordova-plugin-background-fetch
 npx cap sync

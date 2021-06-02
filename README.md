@@ -5,6 +5,8 @@ cordova-plugin-background-fetch &middot; [![npm](https://img.shields.io/npm/dm/c
 
 By [**Transistor Software**](https://www.transistorsoft.com), creators of [**Cordova Background Geolocation**](http://www.transistorsoft.com/shop/products/cordova-background-geolocation)
 
+-------------------------------------------------------------------------------
+### :new: :stop_sign: *Capacitor* version now available! See [__`capacitor-background-fetch`__](https://github.com/transistorsoft/capacitor-background-fetch) :stop_sign:
 ------------------------------------------------------------------------------
 
 Background Fetch is a *very* simple plugin which attempts to awaken an app in the background about **every 15 minutes**, providing a short period of background running-time.  This plugin will execute your provided `callbackFn` whenever a background-fetch event occurs.
