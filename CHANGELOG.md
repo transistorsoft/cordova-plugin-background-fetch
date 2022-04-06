@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## [7.1.0] &mdash; 2022-04-06
+* [Android] Update for Android 12.  Add new required permission android.permission.SCHEDULE_EXACT_ALARM
+
 ## [7.0.3] &mdash; 2021-06-30
 * [Changed][Android] Allow multiple calls to .configure to allow re-configuring the fetch task.  Existing task will be cancelled and a new periodic fetch task re-scheduled according to new config.
 * [Changed][Android] Ignore initial fetch task fired immediately.
