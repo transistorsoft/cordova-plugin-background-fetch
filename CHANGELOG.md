@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## [7.1.1] &mdash; 2022-04-29
+* Mixup in version code mismatch between package.json and plugin.xml
+
 ## [7.1.0] &mdash; 2022-04-06
 * [Android] Update for Android 12.  Add new required permission android.permission.SCHEDULE_EXACT_ALARM
 
