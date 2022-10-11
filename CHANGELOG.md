@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## [7.1.2] &mdash; 2022-10-11
+* [Android] Use `LifecycleManager` for modern headless-detection instead of legacy mechanism requiring permission `GET_TASKS`.
+
 ## [7.1.1] &mdash; 2022-04-29
 * Mixup in version code mismatch between package.json and plugin.xml
 

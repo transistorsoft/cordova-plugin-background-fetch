@@ -3,7 +3,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="cordova-plugin-background-fetch"
-    version="7.1.1">
+    version="7.1.2">
     <name>CDVBackgroundFetch</name>
     <description>Cordova Background Fetch Plugin</description>
     <license>MIT</license>
@@ -56,7 +56,8 @@
 
         <source-file src="src/android/HeadlessTask.java" target-dir="src/com/transistorsoft/cordova/backgroundfetch" />
         <resource-file src="src/android/libs/com/transistorsoft/tsbackgroundfetch" target="../../libs/com/transistorsoft/tsbackgroundfetch" />
-
+        <framework src="androidx.lifecycle:lifecycle-runtime:2.4.+" />
+        <framework src="androidx.lifecycle:lifecycle-extensions:2.2.+" />
         <framework src="src/android/build.gradle" custom="true" type="gradleReference" />
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="BackgroundFetch">
