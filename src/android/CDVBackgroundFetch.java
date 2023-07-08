@@ -2,6 +2,7 @@ package com.transistorsoft.cordova.backgroundfetch;
 
 import com.transistorsoft.tsbackgroundfetch.BackgroundFetch;
 import com.transistorsoft.tsbackgroundfetch.BackgroundFetchConfig;
+import com.transistorsoft.tsbackgroundfetch.LifecycleManager;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -146,5 +147,11 @@ public class CDVBackgroundFetch extends CordovaPlugin {
             config.setPeriodic(options.getBoolean(BackgroundFetchConfig.FIELD_PERIODIC));
         }
         return config;
+    }
+
+    @Override
+    public void onDestroy() {
+        LifecycleManager.getInstance().setHeadless(true);
+        super.onDestroy();
     }
 }

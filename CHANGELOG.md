@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## [7.1.3] &mdash; 2023-07-07
+* [Android] Add Cordova `onDestroy` listener to manually set `LifecycleManager.setHeadless(true)`.
+
 ## [7.1.2] &mdash; 2022-10-11
 * [Android] Use `LifecycleManager` for modern headless-detection instead of legacy mechanism requiring permission `GET_TASKS`.
 
