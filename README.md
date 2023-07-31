@@ -115,9 +115,9 @@ You must register these custom *task-identifiers* with your iOS app's __`Info.pl
 
 :warning: A task identifier can be any string you wish, but it's a good idea to prefix them now with `com.transistorsoft.` &mdash;  In the future, the `com.transistorsoft` prefix **may become required**.
 
-### Android Setup
+### Android Setup (optional)
 
-If you plan to use precise scheduling of events with [__`forceAlarmManager: true`__](#config-boolean-forcealarmmanager-false), *Android 14 (SDK 34)*, has restricted usage of ["`AlarmManager` exact alarms"](https://developer.android.com/about/versions/14/changes/schedule-exact-alarms).  To continue using precise timing of events with *Android 14*, you can manually add this permission to your __`AndroidManifest`__.  Otherwise, the plugin will gracefully fall-back to "*in-exact* `AlarmManager` scheduling":
+**Only** If you wish to use precise scheduling of events with [__`forceAlarmManager: true`__](#config-boolean-forcealarmmanager-false), *Android 14 (SDK 34)*, has restricted usage of ["`AlarmManager` exact alarms"](https://developer.android.com/about/versions/14/changes/schedule-exact-alarms).  To continue using precise timing of events with *Android 14*, you can manually add this permission to your __`AndroidManifest`__.  Otherwise, the plugin will gracefully fall-back to "*in-exact* `AlarmManager` scheduling":
 
 :open_file_folder: In your `config.xml`, add the following block within the __`<platform name="android">`__ block (**exactly as-shown**:
 
