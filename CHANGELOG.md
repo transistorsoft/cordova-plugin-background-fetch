@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## [7.2.0] &mdash; 2023-07-31
+* [Android] Android 14 (SDK 34) support.
+* [Android] Android 14 (SDK 34) support:  When using `forceAlarmManager: true`, you must now optionally add the permission `android.permission.USE_EXACT_ALARM` to your `AndroidManifest` to schedule **exact** alarms.  Otherwise `AlarmManager` will use **in-exact** alarms.  **NOTE** You must include the permission **exactly as-shown** with __`android:minSdkVersion="34"`__.
+
+:open_file_folder: `AndroidManifest`
+```xml
+    <platform name="android">
+        <config-file parent="/manifest" target="app/src/main/AndroidManifest.xml">
+            <uses-permission android:minSdkVersion="34" android:name="android.permission.USE_EXACT_ALARM" />
+        </config-file>
+        .
+        .
+        .
+    </platform>
+```
+
 ## [7.1.3] &mdash; 2023-07-07
 * [Android] Add Cordova `onDestroy` listener to manually set `LifecycleManager.setHeadless(true)`.
 
