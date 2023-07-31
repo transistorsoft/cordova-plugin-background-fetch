@@ -128,7 +128,7 @@ You must register these custom *task-identifiers* with your iOS app's __`Info.pl
       </config-file>
   </platform>
 ```
-
+:warning: It has been announced that *Google Play Store* has plans to impose greater scrutiny over usage of this permission (which is why the plugin does not automatically add it).
 
 ## Example ##
 
