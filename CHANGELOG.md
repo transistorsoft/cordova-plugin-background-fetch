@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## [7.2.2] &mdash; Unreleased
+* [iOS] Only allow registration of `BGProcessingTasks` (*Permitted background task scheduler identifiers*) in `Info.plist` which are prefixed with `com.transistorsoft`.  Any other task identifier will be ignored.
+
 ## [7.2.1] &mdash; 2023-08-20
 * [Android] Detect and dispose of duplicate events.  Android `JobService` has a bug for devices running <= Android M where multiple `background-fetch` events could fire within the same second.
 
