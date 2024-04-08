@@ -112,6 +112,7 @@ static NSString *const PLUGIN_ID = @"cordova-background-fetch";
 
 
     NSError *error = [[TSBackgroundFetch sharedInstance] scheduleProcessingTaskWithIdentifier:taskId
+                                                                                         type: 0
                                                                                         delay:delay
                                                                                      periodic:periodic
                                                                         requiresExternalPower:requiresCharging
