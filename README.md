@@ -115,6 +115,36 @@ You must register these custom *task-identifiers* with your iOS app's __`Info.pl
 
 :warning: A task identifier can be any string you wish, but it's a good idea to prefix them now with `com.transistorsoft.` &mdash;  In the future, the `com.transistorsoft` prefix **may become required**.
 
+#### Privacy Manifest
+
+Apple now requires apps provide a [Privacy Manifest for "sensitive" APIs](https://developer.apple.com/documentation/bundleresources/privacy_manifest_files/describing_use_of_required_reason_api?language=objc) which could be abused for "fingerprinting" a user for malicious marketing activity.
+
+:warning: You **MUST** upgrade your `cordova-ios` platform to [`>= 7.1.0` for *iOS Privacy Manifest Support*](https://github.com/apache/cordova-ios/blob/master/RELEASENOTES.md#710-apr-01-2024):
+
+- :open_file_folder: __`config.xml`__
+- Add the following `<privacy-manifest>` block within the `NSPrivacyAccessedAPITypes` container:
+
+```xml
+  <platform name="ios">
+      <privacy-manifest>
+          <key>NSPrivacyAccessedAPITypes</key>
+          <array>
+              <!-- [1] background-fetch: UserDefaults -->
+              <dict>
+                  <key>NSPrivacyAccessedAPIType</key>
+                  <string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+
+                  <key>NSPrivacyAccessedAPITypeReasons</key>
+                  <array>
+                      <string>CA92.1</string>
+                  </array>
+              </dict>
+              <!-- [1] background-fetch -->
+          </array>
+      </privacy-manifest>
+  </platform>
+```
+
 ### Android Setup (optional)
 
 **Only** If you wish to use precise scheduling of events with [__`forceAlarmManager: true`__](#config-boolean-forcealarmmanager-false), *Android 14 (SDK 34)*, has restricted usage of ["`AlarmManager` exact alarms"](https://developer.android.com/about/versions/14/changes/schedule-exact-alarms).  To continue using precise timing of events with *Android 14*, you can manually add this permission to your __`AndroidManifest`__.  Otherwise, the plugin will gracefully fall-back to "*in-exact* `AlarmManager` scheduling":

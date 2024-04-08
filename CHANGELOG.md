@@ -1,6 +1,8 @@
 # CHANGELOG
 
-## [7.2.2] &mdash; Unreleased
+## [7.2.2] &mdash; 2024-04-08
+* [iOS] Implement new [iOS Privacy Manifest](https://developer.apple.com/documentation/bundleresources/privacy_manifest_files?language=objc)
+* [iOS] codesign `TSBackgroundFetch.xcframework`
 * [iOS] Only allow registration of `BGProcessingTasks` (*Permitted background task scheduler identifiers*) in `Info.plist` which are prefixed with `com.transistorsoft`.  Any other task identifier will be ignored.
 
 ## [7.2.1] &mdash; 2023-08-20
