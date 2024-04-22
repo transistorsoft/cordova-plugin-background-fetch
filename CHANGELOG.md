@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## [7.2.4] &mdash; 2024-04-22
+* [iOS] Code-sign `TSBackgroundFetch.xcframework` with new Apple Organization (*9224-2932 Quebec Inc*) certificate.
+
 ## [7.2.3] &mdash; 2024-04-08
 * [iOS] Implement new [iOS Privacy Manifest](https://developer.apple.com/documentation/bundleresources/privacy_manifest_files?language=objc)
 * [iOS] codesign `TSBackgroundFetch.xcframework`
