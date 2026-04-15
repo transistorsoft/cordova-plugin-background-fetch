@@ -1,34 +1,7 @@
-def NAME = "cordova-plugin-background-fetch"
-
-// Default libDir for Cordova/Ionic app.
-def libDir = "${projectDir}/libs"
-
-File capacitorConfig = new File("${projectDir}/../../capacitor.config.json")
-if (!capacitorConfig.exists()) {
-  // Capacitor V3?
-  capacitorConfig = new File("${projectDir}/../../capacitor.config.ts")
-}
-if (!capacitorConfig.exists()) {
-  capacitorConfig = new File("${projectDir}/../../capacitor.config.js")
-}
-
-if (capacitorConfig.exists()) {
-  // Capacitor app detected.  libDir is from node_modules
-  def nodeModulesDir = (project.hasProperty("nodeModulesDirectory")) ? project.property("nodeModulesDirectory") : "../../node_modules"
-
-  libDir = "${projectDir}/${nodeModulesDir}/${NAME}/src/android/libs"
-  println("[${NAME}] Capacitor detected")
-}
-
-println("[${NAME}] libDir: ${libDir}")
-
 repositories {
-	maven {
-    	url libDir
-  	}
+    mavenCentral()
 }
 
 dependencies {
-    // Load tsbackgroundfetch.aar
-    implementation(group: 'com.transistorsoft', name:'tsbackgroundfetch', version: '+')
+    implementation 'com.transistorsoft:tsbackgroundfetch:4.1.+'
 }

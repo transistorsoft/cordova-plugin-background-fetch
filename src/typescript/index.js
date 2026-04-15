@@ -5,6 +5,7 @@ var BackgroundFetch = /** @class */ (function () {
     function BackgroundFetch() {
     }
     Object.defineProperty(BackgroundFetch, "STATUS_RESTRICTED", {
+        // ── Status constants ──────────────────────────────────────────────
         get: function () { return plugin().STATUS_RESTRICTED; },
         enumerable: false,
         configurable: true
@@ -20,21 +21,26 @@ var BackgroundFetch = /** @class */ (function () {
         configurable: true
     });
     Object.defineProperty(BackgroundFetch, "FETCH_RESULT_NEW_DATA", {
+        // ── Deprecated fetch-result constants ─────────────────────────────
+        /** @deprecated */
         get: function () { return plugin().FETCH_RESULT_NEW_DATA; },
         enumerable: false,
         configurable: true
     });
     Object.defineProperty(BackgroundFetch, "FETCH_RESULT_NO_DATA", {
+        /** @deprecated */
         get: function () { return plugin().FETCH_RESULT_NO_DATA; },
         enumerable: false,
         configurable: true
     });
     Object.defineProperty(BackgroundFetch, "FETCH_RESULT_FAILED", {
+        /** @deprecated */
         get: function () { return plugin().FETCH_RESULT_FAILED; },
         enumerable: false,
         configurable: true
     });
     Object.defineProperty(BackgroundFetch, "NETWORK_TYPE_NONE", {
+        // ── Network type constants ────────────────────────────────────────
         get: function () { return plugin().NETWORK_TYPE_NONE; },
         enumerable: false,
         configurable: true
@@ -59,33 +65,27 @@ var BackgroundFetch = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
-    BackgroundFetch.configure = function () {
-        var fetch = plugin();
-        return fetch.configure.apply(fetch, arguments);
+    // ── Methods ───────────────────────────────────────────────────────
+    BackgroundFetch.configure = function (config, onEvent, onTimeout) {
+        return plugin().configure(config, onEvent, onTimeout);
     };
-    BackgroundFetch.finish = function (taskId) {
-        var fetch = plugin();
-        return fetch.finish.apply(fetch, arguments);
+    BackgroundFetch.start = function (success, failure) {
+        plugin().start(success, failure);
     };
-    BackgroundFetch.start = function () {
-        var fetch = plugin();
-        return fetch.start.apply(fetch, arguments);
+    BackgroundFetch.stop = function (success, failure) {
+        plugin().stop(success, failure);
+    };
+    BackgroundFetch.finish = function (taskId, success, failure) {
+        plugin().finish(taskId, success, failure);
     };
     BackgroundFetch.scheduleTask = function (config, success, failure) {
-        var fetch = plugin();
-        return fetch.scheduleTask.apply(fetch, arguments);
+        plugin().scheduleTask(config, success, failure);
     };
     BackgroundFetch.stopTask = function (taskId, success, failure) {
-        var fetch = plugin();
-        return fetch.stopTask.apply(fetch, arguments);
+        plugin().stopTask(taskId, success, failure);
     };
-    BackgroundFetch.stop = function () {
-        var fetch = plugin();
-        return fetch.stop.apply(fetch, arguments);
-    };
-    BackgroundFetch.status = function () {
-        var fetch = plugin();
-        return fetch.status.apply(fetch, arguments);
+    BackgroundFetch.status = function (callback) {
+        plugin().status(callback);
     };
     return BackgroundFetch;
 }());

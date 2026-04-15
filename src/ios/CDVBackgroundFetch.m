@@ -33,13 +33,11 @@ static NSString *const PLUGIN_ID = @"cordova-background-fetch";
 
 - (void)pluginInitialize
 {
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didFinishLaunching:) name:UIApplicationDidFinishLaunchingNotification object:nil];
-    configured = NO;
-}
-
-- (void)didFinishLaunching:(NSNotification *)notification
-{
+    // didFinishLaunching is handled automatically by TSBackgroundFetch +load
+    // (v4.1+). Keep this call for backward compatibility with older native
+    // versions where consumers must register BGTask handlers explicitly.
     [[TSBackgroundFetch sharedInstance] didFinishLaunching];
+    configured = NO;
 }
 
 - (void) configure:(CDVInvokedUrlCommand*)command
@@ -185,7 +183,7 @@ static NSString *const PLUGIN_ID = @"cordova-background-fetch";
 
 - (void)dealloc
 {
-
+    [[TSBackgroundFetch sharedInstance] removeListener:PLUGIN_ID];
 }
 
 @end

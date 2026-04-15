@@ -1,17 +1,18 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "declaration": false,
+    "declaration": true,
+    "declarationDir": ".",
     "stripInternal": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
     "noImplicitAny": true,
-    "module": "es2015",
+    "module": "commonjs",
     "moduleResolution": "node",
-
     "rootDir": ".",
+    "outDir": "../../www",
     "target": "es5",
     "skipLibCheck": true,
     "lib": ["es2015", "dom"]
-  }
+  },
+  "include": ["index.ts"],
+  "exclude": ["node_modules"]
 }

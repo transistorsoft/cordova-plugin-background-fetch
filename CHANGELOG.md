@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## [7.3.0] &mdash; 2026-04-15
+* Updated plugin to import dependencies from Cocoapods / mavencentral instead of from local maven url
+
 ## [7.2.4] &mdash; 2024-04-22
 * [iOS] Code-sign `TSBackgroundFetch.xcframework` with new Apple Organization (*9224-2932 Quebec Inc*) certificate.
 
