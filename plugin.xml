@@ -3,7 +3,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="cordova-plugin-background-fetch"
-    version="7.2.4">
+    version="7.3.0">
     <name>CDVBackgroundFetch</name>
     <description>Cordova Background Fetch Plugin</description>
     <license>MIT</license>
@@ -14,10 +14,10 @@
     <engines>
         <engine name="cordova" version=">=7.1.0" />
         <engine name="cordova-android" version=">=7.0.0"/>
-        <engine name="cordova-ios" version=">=4.4.0"/>
+        <engine name="cordova-ios" version=">=5.0.0"/>
     </engines>
 
-    <js-module src="www/BackgroundFetch.js" name="BackgroundFetch">
+    <js-module src="www/index.js" name="BackgroundFetch">
         <clobbers target="window.BackgroundFetch" />
     </js-module>
 
@@ -44,7 +44,14 @@
             </feature>
         </config-file>
 
-        <framework src="src/ios/TSBackgroundFetch.xcframework" custom="true"/>
+        <podspec>
+            <config>
+                <source url="https://cdn.cocoapods.org/"/>
+            </config>
+            <pods use-frameworks="true">
+                <pod name="TSBackgroundFetch" spec="~> 4.1.0"/>
+            </pods>
+        </podspec>
 
         <source-file src="src/ios/CDVBackgroundFetch.m" />
         <header-file src="src/ios/CDVBackgroundFetch.h" />
@@ -55,9 +62,7 @@
         <source-file src="src/android/CDVBackgroundFetch.java" target-dir="src/com/transistorsoft/cordova/backgroundfetch" />
 
         <source-file src="src/android/HeadlessTask.java" target-dir="src/com/transistorsoft/cordova/backgroundfetch" />
-        <resource-file src="src/android/libs/com/transistorsoft/tsbackgroundfetch" target="../../libs/com/transistorsoft/tsbackgroundfetch" />
-        <framework src="androidx.lifecycle:lifecycle-runtime:2.4.+" />
-        <framework src="androidx.lifecycle:lifecycle-extensions:2.2.+" />
+        <framework src="androidx.lifecycle:lifecycle-runtime:2.7.+" />
         <framework src="src/android/build.gradle" custom="true" type="gradleReference" />
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="BackgroundFetch">

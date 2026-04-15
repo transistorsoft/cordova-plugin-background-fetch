@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+    <title>BGFetch Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: #111; color: #fff; }
+        header {
+            background: #ffc107; color: #000; padding: 16px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        header h1 { font-size: 18px; }
+        .controls { display: flex; gap: 8px; padding: 12px 16px; background: #222; }
+        .controls button {
+            flex: 1; padding: 10px; border: none; border-radius: 6px;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+        }
+        #btn-start { background: #4caf50; color: #fff; }
+        #btn-stop { background: #f44336; color: #fff; }
+        #btn-status { background: #2196f3; color: #fff; }
+        #btn-clear { background: #555; color: #fff; }
+        #events {
+            list-style: none; padding: 0;
+            overflow-y: auto; max-height: calc(100vh - 140px);
+        }
+        #events li {
+            padding: 10px 16px;
+            border-bottom: 1px solid #333;
+            font-family: monospace; font-size: 13px;
+        }
+        #events li.timeout { color: #f44336; }
+        #events li.event { color: #4caf50; }
+        #events li.status { color: #2196f3; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>BackgroundFetch Demo</h1>
+    </header>
+    <div class="controls">
+        <button id="btn-start">Start</button>
+        <button id="btn-stop">Stop</button>
+        <button id="btn-status">Status</button>
+        <button id="btn-clear">Clear</button>
+    </div>
+    <ul id="events"></ul>
+    <script src="cordova.js"></script>
+    <script src="js/index.js"></script>
+</body>
+</html>
