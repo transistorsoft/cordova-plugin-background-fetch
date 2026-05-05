@@ -1,0 +1,30 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>BackgroundFetch (Ionic)</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-grid>
+    <ion-row>
+      <ion-col size="6"><ion-button expand="block" (click)="configure()">Configure</ion-button></ion-col>
+      <ion-col size="6"><ion-button expand="block" (click)="status()">Status</ion-button></ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col size="6"><ion-button expand="block" (click)="start()">Start</ion-button></ion-col>
+      <ion-col size="6"><ion-button expand="block" color="medium" (click)="stop()">Stop</ion-button></ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col><ion-button expand="block" (click)="scheduleTask()">Schedule Task</ion-button></ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <ion-list lines="full">
+    <ion-item *ngFor="let entry of log">
+      <ion-label>
+        <h3>{{ entry.msg }}</h3>
+        <p>{{ entry.ts }}</p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+</ion-content>
