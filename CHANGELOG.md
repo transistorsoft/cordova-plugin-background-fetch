@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [7.3.1] &mdash; 2026-05-05
+* Fix Webpack/Angular build error `Module not found: Can't resolve 'cordova/exec'` by adding a `browser`-field shim in `package.json` that redirects the bare `cordova/exec` import to a thin proxy delegating to `window.cordova.exec` at runtime.  Pure-Cordova builds (no Webpack/static module resolution) are unaffected.
+* Add `example-ionic/` &mdash; a minimal Ionic + Angular + Cordova testbed that imports the plugin via Webpack, used to reproduce the original failure and verify the fix.
+
 ## [7.3.0] &mdash; 2026-04-15
 * Updated plugin to import dependencies from Cocoapods / mavencentral instead of from local maven url
 
