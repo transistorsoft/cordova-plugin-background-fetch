@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## Unreleased
+* [iOS] Support cordova-ios 8 Swift Package Manager plugins. The plugin now ships `Package.swift`, and cordova-ios 8+ pulls TSBackgroundFetch from Swift Package Manager. cordova-ios 7 and older keep using the `<source-file>` and the CocoaPods `<pod>`. (WO-001)
+* [iOS] Require iOS 15 (TSBackgroundFetch 4.2). Add `<preference name="deployment-target" value="15.0" />` to your `config.xml`. cordova-ios defaults to 11.0 on 7.x and 13.0 on 8.x. (WO-001)
+* [iOS] The background-fetch handler is now a category on `CDVAppDelegate` instead of the app's `AppDelegate`, because a Swift package cannot see the app's `AppDelegate.h`. If your `AppDelegate` implements `application:performFetchWithCompletionHandler:`, forward it to `[[TSBackgroundFetch sharedInstance] performFetchWithCompletionHandler:applicationState:]`. (WO-001)
+* [iOS] Get TSBackgroundFetch from one package manager only.
+  - On cordova-ios 8, don't combine this plugin with a plugin that still gets TSBackgroundFetch from CocoaPods (e.g. `cordova-background-geolocation-lt`) until that plugin also supports Swift Package Manager.
+  - CocoaPods Trunk becomes read-only on 2026-12-02, so CocoaPods apps stay on TSBackgroundFetch 4.2.x after that date. (WO-001)
+
 ## [7.3.1] &mdash; 2026-05-05
 * Fix Webpack/Angular build error `Module not found: Can't resolve 'cordova/exec'` by adding a `browser`-field shim in `package.json` that redirects the bare `cordova/exec` import to a thin proxy delegating to `window.cordova.exec` at runtime.  Pure-Cordova builds (no Webpack/static module resolution) are unaffected.
 * Add `example-ionic/` &mdash; a minimal Ionic + Angular + Cordova testbed that imports the plugin via Webpack, used to reproduce the original failure and verify the fix.

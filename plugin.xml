@@ -21,7 +21,10 @@
         <clobbers target="window.BackgroundFetch" />
     </js-module>
 
-    <platform name="ios">
+    <!-- package="swift": cordova-ios >= 8 builds the plugin from Package.swift and pulls
+         TSBackgroundFetch from Swift Package Manager. Older cordova-ios ignores the attribute
+         and uses the <source-file>/<header-file> + <pod> below. (WO-001) -->
+    <platform name="ios" package="swift">
         <!-- Add BGTaskSchedulerPermittedIdentifiers com.transistorsoft.fetch -->
         <config-file target="*-Info.plist" parent="BGTaskSchedulerPermittedIdentifiers">
             <array>
@@ -49,7 +52,8 @@
                 <source url="https://cdn.cocoapods.org/"/>
             </config>
             <pods use-frameworks="true">
-                <pod name="TSBackgroundFetch" spec="~> 4.1.0"/>
+                <!-- nospm: cordova-ios >= 8 skips this pod (Package.swift supplies TSBackgroundFetch) (WO-001) -->
+                <pod name="TSBackgroundFetch" spec="~> 4.2" nospm="true"/>
             </pods>
         </podspec>
 
