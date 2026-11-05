@@ -10,4 +10,5 @@
     <content src="index.html" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
+    <preference name="deployment-target" value="15.0" />
 </widget>

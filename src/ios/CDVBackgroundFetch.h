@@ -5,7 +5,6 @@
 //
 
 #import <Cordova/CDVPlugin.h>
-#import "AppDelegate.h"
 
 @interface CDVBackgroundFetch : CDVPlugin
 - (void) configure:(CDVInvokedUrlCommand*)command;

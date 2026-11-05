@@ -53,6 +53,16 @@ import BackgroundFetch from "cordova-plugin-background-fetch";
 
 ## Installing the plugin ##
 
+#### :warning: iOS 15 is required
+Add this to your `config.xml`. cordova-ios defaults to 11.0 on 7.x and 13.0 on 8.x:
+```xml
+<preference name="deployment-target" value="15.0" />
+```
+- **cordova-ios 8+** builds this plugin as a Swift Package and gets `TSBackgroundFetch` from Swift Package Manager.
+- **cordova-ios 7 and older** use CocoaPods.
+
+Get `TSBackgroundFetch` from one package manager only. On cordova-ios 8, don't combine this plugin with a plugin that still gets `TSBackgroundFetch` from CocoaPods (e.g. `cordova-background-geolocation-lt`) until that plugin also supports Swift Package Manager.
+
 #### :warning: *Cocoapods* >= `1.10.0` is required:
 ```console
 $ pod --version

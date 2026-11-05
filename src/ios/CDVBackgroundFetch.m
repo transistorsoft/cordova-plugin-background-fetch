@@ -5,13 +5,20 @@
 //  Largely based upon http://www.mindsizzlers.com/2011/07/ios-background-location/
 //
 #import "CDVBackgroundFetch.h"
-#import "AppDelegate.h"
 #import <TSBackgroundFetch/TSBackgroundFetch.h>
 
 static NSString *const TAG = @"CDVBackgroundFetch";
 static NSString *const PLUGIN_ID = @"cordova-background-fetch";
 
-@implementation AppDelegate(AppDelegate)
+// The app's "AppDelegate.h" is not visible from a Swift package target. The app's AppDelegate
+// subclasses CDVAppDelegate (cordova-ios >= 4), and neither implements this method, so the
+// category goes on the superclass. Capacitor's Cordova layer has no CDVAppDelegate (only a stub
+// AppDelegate that is not the UIApplication delegate, so the old category never ran there);
+// leave the category out in that case. (WO-001)
+#if __has_include(<Cordova/CDVAppDelegate.h>)
+#import <Cordova/CDVAppDelegate.h>
+
+@implementation CDVAppDelegate(CDVBackgroundFetch)
 
 -(void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
@@ -21,6 +28,7 @@ static NSString *const PLUGIN_ID = @"cordova-background-fetch";
 }
 
 @end
+#endif
 
 @implementation CDVBackgroundFetch
 {
