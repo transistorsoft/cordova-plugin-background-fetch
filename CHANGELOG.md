@@ -2,7 +2,7 @@
 
 ## Unreleased
 * [iOS] Support cordova-ios 8 Swift Package Manager plugins. The plugin now ships `Package.swift`, and cordova-ios 8+ pulls TSBackgroundFetch from Swift Package Manager. cordova-ios 7 and older keep using the `<source-file>` and the CocoaPods `<pod>`. (WO-001)
-* [iOS] Require iOS 15 (TSBackgroundFetch 4.2). Add `<preference name="deployment-target" value="15.0" />` to your `config.xml`. cordova-ios defaults to 11.0 on 7.x and 13.0 on 8.x. (WO-001)
+* [iOS] Require iOS 15 and TSBackgroundFetch 4.2 or any later 4.x: `from: "4.2.0"` with Swift Package Manager, `~> 4.2` with CocoaPods. Add `<preference name="deployment-target" value="15.0" />` to your `config.xml`. cordova-ios defaults to 11.0 on 7.x and 13.0 on 8.x. (WO-001)
 * [iOS] The background-fetch handler is now a category on `CDVAppDelegate` instead of the app's `AppDelegate`, because a Swift package cannot see the app's `AppDelegate.h`. If your `AppDelegate` implements `application:performFetchWithCompletionHandler:`, forward it to `[[TSBackgroundFetch sharedInstance] performFetchWithCompletionHandler:applicationState:]`. (WO-001)
 * [iOS] Get TSBackgroundFetch from one package manager only.
   - On cordova-ios 8, don't combine this plugin with a plugin that still gets TSBackgroundFetch from CocoaPods (e.g. `cordova-background-geolocation-lt`) until that plugin also supports Swift Package Manager.
