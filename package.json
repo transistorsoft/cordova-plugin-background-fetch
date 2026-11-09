@@ -9,7 +9,9 @@
   "types": "./src/typescript/index.d.ts",
   "scripts": {
     "build": "tsc -p src/typescript",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "preflight": "scripts/preflight.sh",
+    "release": "scripts/release.sh"
   },
   "cordova": {
     "id": "cordova-plugin-background-fetch",
@@ -31,7 +33,6 @@
     "url": "https://github.com/transistorsoft/react-native-background-fetch/issues"
   },
   "homepage": "https://github.com/transistorsoft/react-native-background-fetch",
-
   "engines": {
     "cordovaDependencies": {
       "<5.4.0": {
@@ -49,5 +50,8 @@
   "author": "Chris Scott, Transistor Software <chris@transistorsoft.com>",
   "dependencies": {
     "@transistorsoft/background-fetch-types": "^1.0.0"
+  },
+  "devDependencies": {
+    "typescript": "~4.1.5"
   }
 }

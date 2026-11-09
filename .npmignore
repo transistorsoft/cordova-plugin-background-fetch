@@ -6,5 +6,13 @@ CHANGELOG.md
 src/typescript/index.ts
 src/typescript/tsconfig.json
 
-example-ionic
-
+# The example apps, docs and repository tooling: not the plugin (7.3.1 shipped .github/
+# and 119 files of example/, including example/ionic)
+example
+docs
+.github
+scripts
+RELEASING.md
+*.tgz
+# A local Android build's caches
+.gradle
