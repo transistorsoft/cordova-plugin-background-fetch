@@ -15,8 +15,9 @@ let package = Package(
         // cordova-ios rewrites this line to a local path at `cordova plugin add` with a greedy
         // regex; keep it alone on its own line. (WO-001)
         .package(url: "https://github.com/apache/cordova-ios.git", from: "8.0.0"),
-        // Lower bound 4.1.0, not 4.2.0: TSLocationManager 4.8.x allows only TSBackgroundFetch 4.1.x. (WO-001)
-        .package(url: "https://github.com/transistorsoft/transistor-background-fetch.git", from: "4.1.0")
+        // 4.2.0 through every later 4.x: 4.2 is the first iOS 15 build. An app that also uses
+        // background-geolocation needs a TSLocationManager that accepts 4.2 (4.8.x allows only 4.1.x). (WO-001)
+        .package(url: "https://github.com/transistorsoft/transistor-background-fetch.git", from: "4.2.0")
     ],
     targets: [
         .target(
