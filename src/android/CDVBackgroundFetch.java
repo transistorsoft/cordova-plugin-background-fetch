@@ -13,6 +13,7 @@ import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginResult;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.util.Log;
 
 public class CDVBackgroundFetch extends CordovaPlugin {
@@ -149,8 +150,22 @@ public class CDVBackgroundFetch extends CordovaPlugin {
     }
 
     @Override
+    public void onResume(boolean multitasking) {
+        super.onResume(multitasking);
+        // (WO-003) An Activity is on screen, so the app is not headless.  Cordova creates this plugin on its first
+        // exec, so a recreation's new Activity resumes before it exists: onDestroy's check below is what covers that.
+        LifecycleManager.getInstance().setHeadless(false);
+    }
+
+    @Override
     public void onDestroy() {
-        LifecycleManager.getInstance().setHeadless(true);
+        // (WO-003) A configuration-change recreation is not a termination: a new Activity follows at once.  Going
+        // headless here would send the next fetch, with the app on screen, to the headless path instead of the
+        // configure() callback.
+        Activity activity = cordova.getActivity();
+        if (activity == null || !activity.isChangingConfigurations()) {
+            LifecycleManager.getInstance().setHeadless(true);
+        }
         super.onDestroy();
     }
 }
