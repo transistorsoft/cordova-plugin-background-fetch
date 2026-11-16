@@ -5,6 +5,35 @@ var EMPTY_FN = function () { };
 var STATUS_RESTRICTED = 0;
 var STATUS_DENIED = 1;
 var STATUS_AVAILABLE = 2;
+// (WO-009) One native call, as @transistorsoft/background-fetch-types declares it: a Promise settled by the native
+// reply.  It resolves `value` applied to what native sends (the status for start and status; `true` for the others,
+// which native answers with "OK" on Android and null on iOS, so the value is supplied here and never passed through)
+// and rejects with what native sends.  The callbacks a caller passes get what native sends, as before.  A caller who
+// passes a callback is answered there, so the Promise gets a no-op rejection handler: a callback-only caller never
+// sees an unhandled rejection.  exec is called outside the Promise's executor, so a synchronous throw from it reaches
+// the caller, as it did before.
+function call(action, args, value, success, failure) {
+    var settle = EMPTY_FN;
+    var fail = EMPTY_FN;
+    var promise = new Promise(function (resolve, reject) { settle = resolve; fail = reject; });
+    if (typeof success === 'function' || typeof failure === 'function') {
+        promise.catch(EMPTY_FN);
+    }
+    exec(function (answer) {
+        settle(value(answer));
+        if (typeof success === 'function') {
+            success(answer);
+        }
+    }, function (error) {
+        fail(error);
+        if (typeof failure === 'function') {
+            failure(error);
+        }
+    }, MODULE, action, args);
+    return promise;
+}
+function asIs(value) { return value; }
+function alwaysTrue() { return true; }
 var BackgroundFetch = /** @class */ (function () {
     function BackgroundFetch() {
     }
@@ -36,11 +65,26 @@ var BackgroundFetch = /** @class */ (function () {
             exec(onStatus, onStatus, MODULE, 'status', []);
         });
     };
+    // (WO-009) Resolves the status once the native start has run (both OSes reply after it), so `await start()` orders
+    // it before a later stop().
     BackgroundFetch.start = function (success, failure) {
-        exec(success || EMPTY_FN, failure || EMPTY_FN, MODULE, 'start', []);
+        return call('start', [], asIs, success, failure);
     };
-    BackgroundFetch.stop = function (success, failure) {
-        exec(success || EMPTY_FN, failure || EMPTY_FN, MODULE, 'stop', []);
+    BackgroundFetch.stop = function (first, second, third) {
+        if (typeof first === 'string') {
+            return call('stop', [first], alwaysTrue, second, third);
+        }
+        if (typeof first === 'function') {
+            return call('stop', [], alwaysTrue, first, second);
+        }
+        if (first !== undefined && first !== null) {
+            throw '[BackgroundFetch] stop error: The 1st argument must be a taskId:String or a success callback';
+        }
+        // An empty first slot: the 7.x form, (success, failure) with no success, unless a third argument names the
+        // failure.
+        return third === undefined
+            ? call('stop', [], alwaysTrue, undefined, second)
+            : call('stop', [], alwaysTrue, second, third);
     };
     BackgroundFetch.finish = function (taskId, success, failure) {
         if (typeof taskId !== 'string') {
@@ -48,20 +92,23 @@ var BackgroundFetch = /** @class */ (function () {
         }
         exec(success || EMPTY_FN, failure || EMPTY_FN, MODULE, 'finish', [taskId]);
     };
+    // (WO-009) Resolves true; rejects with native's error (iOS: the error's message).
     BackgroundFetch.scheduleTask = function (config, success, failure) {
         if (typeof config !== 'object') {
             throw '[BackgroundFetch] scheduleTask error: The 1st argument is a config {}';
         }
-        exec(success || EMPTY_FN, failure || EMPTY_FN, MODULE, 'scheduleTask', [config]);
+        return call('scheduleTask', [config], alwaysTrue, success, failure);
     };
+    /** @deprecated Use {@link BackgroundFetch.stop}(taskId). (WO-009) */
     BackgroundFetch.stopTask = function (taskId, success, failure) {
         if (typeof taskId !== 'string') {
             throw '[BackgroundFetch] stopTask error: The 1st argument must be a taskId:String';
         }
-        exec(success || EMPTY_FN, failure || EMPTY_FN, MODULE, 'stop', [taskId]);
+        return call('stop', [taskId], alwaysTrue, success, failure);
     };
+    // (WO-009) The callback is optional, as the types declare.
     BackgroundFetch.status = function (callback) {
-        exec(callback || EMPTY_FN, EMPTY_FN, MODULE, 'status', []);
+        return call('status', [], asIs, callback);
     };
     // ── Status constants ──────────────────────────────────────────────
     BackgroundFetch.STATUS_RESTRICTED = STATUS_RESTRICTED;

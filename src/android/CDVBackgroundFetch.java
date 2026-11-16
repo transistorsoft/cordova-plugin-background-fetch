@@ -45,6 +45,10 @@ public class CDVBackgroundFetch extends CordovaPlugin {
             finish(data.getString(0), callbackContext);
             result = true;
         } else if (ACTION_SCHEDULE_TASK.equalsIgnoreCase(action)) {
+            // (WO-009) Without it execute() returns false and cordova-android answers the same callbackId a second
+            // time, with INVALID_ACTION ("Invalid action"), which only the order of the two answers kept from the
+            // failure callback.
+            result = true;
             scheduleTask(data.getJSONObject(0), callbackContext);
         }
         return result;
