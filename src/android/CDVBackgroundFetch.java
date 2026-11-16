@@ -16,6 +16,8 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.util.Log;
 
+import java.lang.ref.WeakReference;
+
 public class CDVBackgroundFetch extends CordovaPlugin {
     private static final String ACTION_SCHEDULE_TASK          = "scheduleTask";
     private static final String FETCH_TASK_ID                 = "cordova-background-fetch";
@@ -153,21 +155,40 @@ public class CDVBackgroundFetch extends CordovaPlugin {
         return config;
     }
 
+    // (WO-010) The CordovaActivity resumed most recently.  Static because each CordovaActivity has its own
+    // PluginManager and its own instance of this plugin; weak so that it never keeps a destroyed Activity alive.  The
+    // plugin is onload on Android (plugin.xml): when the Activity loads its page in onCreate, as CordovaActivity's
+    // template does, each instance exists before its Activity's first onResume.  An Activity that loads its page later
+    // is recorded at its next resume.
+    private static WeakReference<Activity> sResumedActivity = new WeakReference<>(null);
+
     @Override
     public void onResume(boolean multitasking) {
         super.onResume(multitasking);
-        // (WO-003) An Activity is on screen, so the app is not headless.  Cordova creates this plugin on its first
-        // exec, so a recreation's new Activity resumes before it exists: onDestroy's check below is what covers that.
+        sResumedActivity = new WeakReference<>(cordova.getActivity());
+        // (WO-003, WO-010) A CordovaActivity is on screen, so the app is not headless.  ProcessLifecycleOwner sends no
+        // ON_START when the new Activity resumes within 700 ms of the old one's pause, so nothing else clears the
+        // flag then.
         LifecycleManager.getInstance().setHeadless(false);
     }
 
     @Override
     public void onDestroy() {
-        // (WO-003) A configuration-change recreation is not a termination: a new Activity follows at once.  Going
-        // headless here would send the next fetch, with the app on screen, to the headless path instead of the
-        // configure() callback.
+        // (WO-003, WO-010) Only the plugin sees its Activity destroyed in a live process: ProcessLifecycleOwner never
+        // sends ON_DESTROY.  Unless the SDK goes headless here, the next fetch goes to this destroyed page's callback,
+        // and nothing finishes it.  cordova.getActivity() is this instance's own Activity.  Three onDestroys are not a
+        // termination:
+        // - (WO-010) a page load in a live Activity: PluginManager.init destroys every plugin instance when the WebView
+        //   loads a new page (navigator.app.loadUrl, the errorUrl page, a native loadUrl), and the next page's onload
+        //   instance gets no onResume to clear the flag.  isDestroyed() tells the two apart: Activity.performDestroy
+        //   sets it before calling onDestroy;
+        // - a configuration-change recreation (WO-003): a new Activity follows at once;
+        // - (WO-010) the destroy of an Activity that is no longer the one resumed last: when an app restarts itself,
+        //   the new Activity resumes before the old one is destroyed, and its page is on screen.  React Native and
+        //   Capacitor (WO-007) ignore that destroy too.
         Activity activity = cordova.getActivity();
-        if (activity == null || !activity.isChangingConfigurations()) {
+        if (activity != null && activity.isDestroyed() && activity == sResumedActivity.get()
+                && !activity.isChangingConfigurations()) {
             LifecycleManager.getInstance().setHeadless(true);
         }
         super.onDestroy();
