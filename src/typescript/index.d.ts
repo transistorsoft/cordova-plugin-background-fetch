@@ -17,11 +17,14 @@ declare class BackgroundFetch {
     static NETWORK_TYPE_NOT_ROAMING: NetworkType;
     static NETWORK_TYPE_CELLULAR: NetworkType;
     static configure(config: BackgroundFetchConfig, onEvent: (taskId: string) => void, onTimeout: (taskId: string) => void): Promise<BackgroundFetchStatus>;
-    static start(success?: () => void, failure?: (status: BackgroundFetchStatus) => void): void;
-    static stop(success?: () => void, failure?: (error: string) => void): void;
+    static start(success?: (status: BackgroundFetchStatus) => void, failure?: (status: BackgroundFetchStatus) => void): Promise<BackgroundFetchStatus>;
+    static stop(taskId?: string | null): Promise<boolean>;
+    static stop(taskId: string, success?: () => void, failure?: (error: string) => void): Promise<boolean>;
+    static stop(success?: (() => void) | null, failure?: (error: string) => void): Promise<boolean>;
     static finish(taskId: string, success?: () => void, failure?: (error: string) => void): void;
-    static scheduleTask(config: TaskConfig, success?: () => void, failure?: (error: string) => void): void;
-    static stopTask(taskId: string, success?: () => void, failure?: (error: string) => void): void;
-    static status(callback: (status: BackgroundFetchStatus) => void): void;
+    static scheduleTask(config: TaskConfig, success?: () => void, failure?: (error: string) => void): Promise<boolean>;
+    /** @deprecated Use {@link BackgroundFetch.stop}(taskId). (WO-009) */
+    static stopTask(taskId: string, success?: () => void, failure?: (error: string) => void): Promise<boolean>;
+    static status(callback?: (status: BackgroundFetchStatus) => void): Promise<BackgroundFetchStatus>;
 }
 export = BackgroundFetch;

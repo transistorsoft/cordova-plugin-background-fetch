@@ -97,6 +97,16 @@ npm install --silent --no-audit --no-fund "$TARBALL" "typescript@^5" >/dev/null 
 cat > index.ts <<'TS'
 import BackgroundFetch from "cordova-plugin-background-fetch";
 import type { BackgroundFetchConfig, BackgroundFetchStatus, TaskConfig } from "@transistorsoft/background-fetch-types";
+import type TypesBackgroundFetch from "@transistorsoft/background-fetch-types";
+
+// (WO-009) Cordova's BackgroundFetch is its own class, compiled from src/typescript/index.ts, so nothing else holds it
+// to the shared types' class.  This holds every member both have to the types' declaration of it (a Pick, not an
+// Omit: the types float on ^1.0.0, and a member they add must not fail a Cordova release).  Parameter lists are
+// checked only loosely by an assignment: the reads below cover each call's form and result.
+export const conforms: Pick<typeof TypesBackgroundFetch,
+  | "STATUS_RESTRICTED" | "STATUS_DENIED" | "STATUS_AVAILABLE"
+  | "NETWORK_TYPE_NONE" | "NETWORK_TYPE_ANY" | "NETWORK_TYPE_UNMETERED" | "NETWORK_TYPE_NOT_ROAMING" | "NETWORK_TYPE_CELLULAR"
+  | "configure" | "scheduleTask" | "start" | "stop" | "finish" | "status"> = BackgroundFetch;
 
 const config: BackgroundFetchConfig = {
   minimumFetchInterval: 15,
@@ -110,8 +120,24 @@ export async function start(): Promise<boolean> {
     (taskId: string) => BackgroundFetch.finish(taskId),
   );
   const task: TaskConfig = { taskId: "com.transistorsoft.task", delay: 5000, periodic: false };
+  // (WO-009) Each result as the types declare it.
+  const started: BackgroundFetchStatus = await BackgroundFetch.start();
+  const current: BackgroundFetchStatus = await BackgroundFetch.status();
+  const scheduled: boolean = await BackgroundFetch.scheduleTask(task);
+  const stoppedTask: boolean = await BackgroundFetch.stop(task.taskId);
+  const stoppedAll: boolean = await BackgroundFetch.stop();
+  const stoppedOld: boolean = await BackgroundFetch.stopTask(task.taskId);
+  // (WO-009) The callback forms still compile.
+  BackgroundFetch.start((s: BackgroundFetchStatus) => console.log(s), (s: BackgroundFetchStatus) => console.warn(s));
+  BackgroundFetch.start(() => {}, () => {});
+  BackgroundFetch.stop(() => {}, (error: string) => console.warn(error));
+  BackgroundFetch.stop(task.taskId, () => {}, (error: string) => console.warn(error));
+  BackgroundFetch.stop(null, (error: string) => console.warn(error));
+  BackgroundFetch.status((s: BackgroundFetchStatus) => console.log(s));
   BackgroundFetch.scheduleTask(task, () => {}, (error: string) => console.warn(error));
-  return status === BackgroundFetch.STATUS_AVAILABLE;
+  BackgroundFetch.stopTask(task.taskId, () => {}, (error: string) => console.warn(error));
+  return status === BackgroundFetch.STATUS_AVAILABLE && started === current
+    && scheduled && stoppedTask && stoppedAll && stoppedOld;
 }
 TS
 for mode in "node16 node16" "esnext bundler"; do
@@ -123,25 +149,125 @@ done
 ok "strict TypeScript compiles under node16 and bundler resolution"
 # What a bundler does with the package.json `browser` field (7.3.1): `cordova/exec` resolves to
 # www/exec-browser.js, which forwards to window.cordova.exec. Load it that way and call through.
-node -e '
-  const Module = require("module"), path = require("path");
-  const pkg = path.dirname(require.resolve("cordova-plugin-background-fetch/package.json"));
-  const browser = require(path.join(pkg, "package.json")).browser["cordova/exec"];
-  const resolve = Module._resolveFilename;
-  Module._resolveFilename = function (request, ...rest) {
-    return request === "cordova/exec" ? path.join(pkg, browser) : resolve.call(this, request, ...rest);
-  };
-  const calls = [];
-  globalThis.window = { cordova: { exec: (ok, err, service, action) => calls.push(service + "." + action) } };
-  const B = require("cordova-plugin-background-fetch");
-  const want = { STATUS_RESTRICTED: 0, STATUS_DENIED: 1, STATUS_AVAILABLE: 2, NETWORK_TYPE_NONE: 0,
-                 NETWORK_TYPE_ANY: 1, NETWORK_TYPE_UNMETERED: 2, NETWORK_TYPE_NOT_ROAMING: 3, NETWORK_TYPE_CELLULAR: 4 };
-  const wrong = Object.keys(want).filter(k => B[k] !== want[k]);
-  if (wrong.length) { console.error("wrong at runtime:", wrong.join(", ")); process.exit(1); }
+# (WO-009) The fake exec records each call's action and arguments and answers it, later, as Android's
+# native half does: the status for start and status, the string "OK" for stop and scheduleTask (so a
+# wrapper that passed native's value through would fail here, not only on a device), or a failure.
+cat > check.js <<'JS'
+const Module = require("module"), path = require("path"), assert = require("assert");
+const pkg = path.dirname(require.resolve("cordova-plugin-background-fetch/package.json"));
+const browser = require(path.join(pkg, "package.json")).browser["cordova/exec"];
+const resolve = Module._resolveFilename;
+Module._resolveFilename = function (request, ...rest) {
+  return request === "cordova/exec" ? path.join(pkg, browser) : resolve.call(this, request, ...rest);
+};
+const calls = [];
+let fail = false;                                // the next answer is a failure
+let reply = null;                                // the next success answer, when not Android's usual one
+const answers = { start: 2, status: 2, stop: "OK", scheduleTask: "OK", finish: "OK" };
+const failures = { start: 1, stop: "the fake's stop failure", scheduleTask: "the fake's failure" };
+globalThis.window = { cordova: { exec: (ok, err, service, action, args) => {
+  calls.push({ call: service + "." + action, args });
+  const failing = fail, answer = reply ? reply.value : answers[action];
+  fail = false; reply = null;
+  setImmediate(() => failing ? err(failures[action]) : ok(answer));
+} } };
+const unhandled = [];
+process.on("unhandledRejection", (reason) => unhandled.push(reason));
+// A call whose Promise never settles would end the script here, silently, before its last check.
+let done = false;
+process.on("beforeExit", () => {
+  if (!done) { console.error("check.js stopped before its last check: a call's Promise never settled"); process.exit(1); }
+});
+const B = require("cordova-plugin-background-fetch");
+const want = { STATUS_RESTRICTED: 0, STATUS_DENIED: 1, STATUS_AVAILABLE: 2, NETWORK_TYPE_NONE: 0,
+               NETWORK_TYPE_ANY: 1, NETWORK_TYPE_UNMETERED: 2, NETWORK_TYPE_NOT_ROAMING: 3, NETWORK_TYPE_CELLULAR: 4 };
+const wrong = Object.keys(want).filter(k => B[k] !== want[k]);
+if (wrong.length) { console.error("wrong at runtime:", wrong.join(", ")); process.exit(1); }
+const sent = () => { const c = calls.shift(); return c && c.call + " " + JSON.stringify(c.args); };
+const callback = () => { let got = []; const fn = (...a) => got.push(a); fn.got = got; return fn; };
+const settle = () => new Promise((r) => setTimeout(r, 10));
+(async () => {
   B.finish("task");
-  if (calls.join() !== "BackgroundFetch.finish") { console.error("exec calls:", calls.join() || "none"); process.exit(1); }' \
-  || fail "the module does not load through the browser-field shim, or its constants are wrong"
-ok "require() through the browser-field shim: every constant, and finish() reaches cordova.exec"
+  assert.strictEqual(sent(), 'BackgroundFetch.finish ["task"]');
+  // (WO-009) stop(taskId) is that task; stop(), stop(undefined), stop(null) and stop(fn) are every task.
+  assert.strictEqual(await B.stop("x"), true, "stop(taskId) resolves true");
+  assert.strictEqual(sent(), 'BackgroundFetch.stop ["x"]');
+  const stoppedOne = callback();
+  assert.strictEqual(await B.stop("x", stoppedOne), true, "stop(taskId, fn) resolves true");
+  assert.strictEqual(sent(), 'BackgroundFetch.stop ["x"]');
+  assert.deepStrictEqual(stoppedOne.got, [["OK"]], "stop(taskId, fn) calls fn with what native sends");
+  const stopped = callback();
+  assert.strictEqual(await B.stop(stopped), true, "stop(fn) resolves true");
+  assert.strictEqual(sent(), "BackgroundFetch.stop []");
+  assert.deepStrictEqual(stopped.got, [["OK"]], "stop(fn) calls fn with what native sends");
+  assert.strictEqual(await B.stop(), true);
+  assert.strictEqual(sent(), "BackgroundFetch.stop []");
+  assert.strictEqual(await B.stop(undefined), true);
+  assert.strictEqual(sent(), "BackgroundFetch.stop []", "stop(undefined) is stop()");
+  assert.strictEqual(await B.stop(null), true);
+  assert.strictEqual(sent(), "BackgroundFetch.stop []", "stop(null) is stop()");
+  reply = { value: null };
+  assert.strictEqual(await B.stop(), true, "stop() resolves true when native answers null, as iOS does");
+  sent();
+  // (WO-009) The 7.x form stop(null, failure): the function is the failure callback, as before.
+  const onlyFailure = callback();
+  assert.strictEqual(await B.stop(null, onlyFailure), true);
+  assert.strictEqual(sent(), "BackgroundFetch.stop []");
+  assert.deepStrictEqual(onlyFailure.got, [], "stop(null, fn) does not call fn on a success");
+  fail = true;
+  await assert.rejects(B.stop(undefined, onlyFailure), (e) => e === "the fake's stop failure");
+  sent();
+  assert.deepStrictEqual(onlyFailure.got, [["the fake's stop failure"]], "stop(undefined, fn) calls fn on a failure");
+  const stoppedTask = callback();
+  assert.strictEqual(await B.stopTask("x", stoppedTask), true, "stopTask(taskId, fn) resolves true");
+  assert.strictEqual(sent(), 'BackgroundFetch.stop ["x"]');
+  assert.deepStrictEqual(stoppedTask.got, [["OK"]], "stopTask(taskId, fn) calls fn with what native sends");
+  // (WO-009) scheduleTask: true, or a rejection with native's failure.
+  const task = { taskId: "t", delay: 5000 };
+  assert.strictEqual(await B.scheduleTask(task), true, "scheduleTask resolves true");
+  assert.strictEqual(sent(), 'BackgroundFetch.scheduleTask [{"taskId":"t","delay":5000}]');
+  reply = { value: null };
+  assert.strictEqual(await B.scheduleTask(task), true, "scheduleTask resolves true when native answers null, as iOS does");
+  sent();
+  fail = true;
+  await assert.rejects(B.scheduleTask(task), (e) => e === "the fake's failure", "scheduleTask rejects native's failure");
+  sent();
+  // (WO-009) start and status: the status native sends, or a rejection with it.
+  assert.strictEqual(await B.start(), 2, "start resolves the status native sends");
+  assert.strictEqual(sent(), "BackgroundFetch.start []");
+  fail = true;
+  await assert.rejects(B.start(), (e) => e === 1, "start rejects with what native sends");
+  sent();
+  const statused = callback();
+  reply = { value: 1 };
+  assert.strictEqual(await B.status(statused), 1, "status(cb) resolves the status native sends (Denied)");
+  assert.deepStrictEqual(statused.got, [[1]], "status(cb) calls cb with it");
+  assert.strictEqual(sent(), "BackgroundFetch.status []");
+  reply = { value: 0 };
+  assert.strictEqual(await B.status(), 0, "status() resolves the status native sends (Restricted)");
+  assert.strictEqual(sent(), "BackgroundFetch.status []");
+  // (WO-009) A failing call made with any callback calls its failure callback, if any, and leaves no unhandled
+  // rejection: the failure-only and the success-only callers.
+  const failed = callback();
+  fail = true;
+  B.start(undefined, failed);
+  await settle();
+  assert.deepStrictEqual(failed.got, [[1]], "start's failure callback gets what native sends");
+  sent();
+  const okOnly = callback();
+  fail = true;
+  B.scheduleTask(task, okOnly);
+  await settle();
+  assert.deepStrictEqual(okOnly.got, [], "a success-only caller's callback is not called on a failure");
+  sent();
+  assert.strictEqual(unhandled.length, 0, "a callback caller sees no unhandled rejection");
+  assert.strictEqual(calls.length, 0, "exec calls left over: " + JSON.stringify(calls));
+  done = true;
+})().catch((e) => { console.error(e.message); process.exit(1); });
+JS
+node check.js \
+  || fail "the module does not load through the browser-field shim, or a call does not reach cordova.exec as the types declare (WO-009)"
+ok "require() through the browser-field shim: every constant; each call reaches cordova.exec and settles as the types declare (WO-009)"
 
 echo
 echo "${GREEN}preflight passed${RESET} — $NAME@$VERSION"

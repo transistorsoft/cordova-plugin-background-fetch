@@ -96,14 +96,14 @@ npx cap sync
 If you intend to execute your own [custom tasks](#executing-custom-tasks) via **`BackgroundFetch.scheduleTask`**, for example:
 
 ```javascript
-BackgroundFetch.scheduleTask({
+await BackgroundFetch.scheduleTask({
   taskId: 'com.transistorsoft.customtask1',  // <-- Your custom task-identifier
   delay: 60 * 60 * 1000  //  In one hour (milliseconds)
 });
 .
 .
 .
-BackgroundFetch.scheduleTask({
+await BackgroundFetch.scheduleTask({
   taskId: 'com.transistorsoft.customtask2',  // <-- Your custom task-identifier
   delay: 60 * 60 * 1000  //  In one hour (milliseconds)
 });
@@ -274,7 +274,7 @@ let status = await BackgroundFetch.configure({
 });
 
 // Step 2:  Schedule a custom "oneshot" task "com.transistorsoft.customtask" to execute 5000ms from now.
-BackgroundFetch.scheduleTask({
+await BackgroundFetch.scheduleTask({
   taskId: "com.transistorsoft.customtask",
   forceAlarmManager: true,
   delay: 5000  // <-- milliseconds
@@ -333,7 +333,7 @@ let status = await BackgroundFetch.configure({
 .
 .
 // And with with #scheduleTask
-BackgroundFetch.scheduleTask({
+await BackgroundFetch.scheduleTask({
   taskId: 'com.transistorsoft.customtask',
   delay: 5000,       // milliseconds
   forceAlarmManager: true
@@ -439,12 +439,14 @@ This will copy your custom Java source-file into the `cordova-plugin-background-
 | Method Name | Arguments | Returns | Notes |
 |-------------|-----------|---------|-------|
 | `configure` | `{BackgroundFetchConfig}`, `callbackFn`, `timeoutFn` | `Promise<BackgroundFetchStatus>` | Configures the plugin's fetch `callbackFn` and `timeoutFn`.  This `callbackFn` will fire each time an iOS background-fetch event occurs (typically every 15 min).  The `timeoutFn` will be called when the OS reports your task is nearing the end of its allowed background-time. |
-| `scheduleTask` | `{TaskConfig}` | `Void` | Executes a custom task.  The task will be executed in the same `Callback` function provided to `#configure`. |
-| `stopTask` | `String taskId`, `successFn`,`failureFn` | `Void` | Stops a `scheduleTask` from running. |
+| `scheduleTask` | `{TaskConfig}`, `successFn`, `failureFn` | `Promise<boolean>` | Executes a custom task.  The task will be executed in the same `Callback` function provided to `#configure`.  Resolves `true`; rejects when the OS refuses the task (iOS). |
+| `stopTask` | `String taskId`, `successFn`,`failureFn` | `Promise<boolean>` | **Deprecated:** use `stop(taskId)`.  Stops a `scheduleTask` from running. |
 | `finish` | `String taskId` | `Void` | You **MUST** call this method in your `callbackFn` provided to `#configure` in order to signal to the OS that your task is complete.  iOS provides **only** 30s of background-time for a fetch-event -- if you exceed this 30s, iOS will kill your app. |
-| `start` | `successFn`, `failureFn` | `Void` | Start the background-fetch API.  Your `callbackFn` provided to `#configure` will be executed each time a background-fetch event occurs.  **NOTE** the `#configure` method *automatically* calls `#start`.  You do **not** have to call this method after you `#configure` the plugin |
-| `stop` | `successFn`, `failureFn` | `Void` | Stop the background-fetch API from firing fetch events.  Your `callbackFn` provided to `#configure` will no longer be executed. |
-| `status` | `callbackFn` | `Void` | Your callback will be executed with the current `status (Integer)` `0: Restricted`, `1: Denied`, `2: Available`.  These constants are defined as `BackgroundFetch.STATUS_RESTRICTED`, `BackgroundFetch.STATUS_DENIED`, `BackgroundFetch.STATUS_AVAILABLE` (**NOTE:** Android will always return `STATUS_AVAILABLE`)|
+| `start` | `successFn`, `failureFn` | `Promise<BackgroundFetchStatus>` | Start the background-fetch API.  Your `callbackFn` provided to `#configure` will be executed each time a background-fetch event occurs.  **NOTE** the `#configure` method *automatically* calls `#start`.  You do **not** have to call this method after you `#configure` the plugin.  Resolves the status once the background-fetch API has started: `await` it before a later `#stop`. |
+| `stop` | `String taskId`, `successFn`, `failureFn`; or `successFn`, `failureFn`; or nothing | `Promise<boolean>` | With a `taskId`, stops that `scheduleTask` task only.  With none, stops the background-fetch API and every task: your `callbackFn` provided to `#configure` will no longer be executed.  `stop(successFn, failureFn)` also works. |
+| `status` | `callbackFn` (optional) | `Promise<BackgroundFetchStatus>` | Resolves (and calls your callback, if you pass one) with the current `status (Integer)` `0: Restricted`, `1: Denied`, `2: Available`.  These constants are defined as `BackgroundFetch.STATUS_RESTRICTED`, `BackgroundFetch.STATUS_DENIED`, `BackgroundFetch.STATUS_AVAILABLE` (**NOTE:** Android will always return `STATUS_AVAILABLE`)|
+
+Every method that returns a `Promise` also accepts the `successFn` / `failureFn` callbacks shown, and calls them as before.  A call with no callbacks that fails rejects.
 
 
 ## Debugging
