@@ -49,7 +49,7 @@
   },
   "author": "Chris Scott, Transistor Software <chris@transistorsoft.com>",
   "dependencies": {
-    "@transistorsoft/background-fetch-types": "^1.0.0"
+    "@transistorsoft/background-fetch-types": "^1.0.1"
   },
   "devDependencies": {
     "typescript": "~4.1.5"

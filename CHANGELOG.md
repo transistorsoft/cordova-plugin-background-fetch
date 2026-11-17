@@ -11,6 +11,10 @@
 * [iOS] Get TSBackgroundFetch from one package manager only.
   - On cordova-ios 8, don't combine this plugin with a plugin that still gets TSBackgroundFetch from CocoaPods (e.g. `cordova-background-geolocation-lt`) until that plugin also supports Swift Package Manager.
   - CocoaPods Trunk becomes read-only on 2026-12-02, so CocoaPods apps stay on TSBackgroundFetch 4.2.x after that date. (WO-001)
+* [iOS] If your app also uses `cordova-background-geolocation-lt`, stay on 7.3.1, pinned exactly (`"cordova-plugin-background-fetch": "7.3.1"` in your `package.json`): a `^7.3.1` range installs 7.4.0. (WO-001)
+  - cordova-ios 7 and older: TSLocationManager 4.8.3, the latest, requires TSBackgroundFetch 4.1.x, so CocoaPods cannot resolve both. Upgrade once a TSLocationManager that accepts TSBackgroundFetch 4.2 is out and your `cordova-background-geolocation-lt` accepts it (5.5.1 takes TSLocationManager 4.8.x only).
+  - cordova-ios 8: this plugin gets TSBackgroundFetch from Swift Package Manager, and `cordova-background-geolocation-lt` brings its own from CocoaPods, so the app would carry two. Upgrade once `cordova-background-geolocation-lt` supports Swift Package Manager.
+* Require `@transistorsoft/background-fetch-types` 1.0.1 or later. Its 1.0.0 throws `ReferenceError: BackgroundFetch is not defined` when a build loads the package at run time (esbuild, Vite, or Babel or SWC compiling TypeScript one file at a time).
 
 ## [7.3.1] &mdash; 2026-05-05
 * Fix Webpack/Angular build error `Module not found: Can't resolve 'cordova/exec'` by adding a `browser`-field shim in `package.json` that redirects the bare `cordova/exec` import to a thin proxy delegating to `window.cordova.exec` at runtime.  Pure-Cordova builds (no Webpack/static module resolution) are unaffected.
