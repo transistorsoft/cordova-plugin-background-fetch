@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## [7.4.0] &mdash; 2026-11-17
 * [Android] An app that restarts itself (`finish()` then `startActivity()`, or a relaunch within a second of a finish) no longer leaves the plugin in headless mode with the new page on screen. The old Activity's destroy arrives after the new one resumes, and it put the plugin in headless mode, so the page's next fetch was stopped (`stopOnTerminate: true`) or sent to the headless task (`false`). A page load in the same Activity (`navigator.app.loadUrl()`, the `errorUrl` page, a native `loadUrl()`) no longer puts the plugin in headless mode either. The plugin now loads at startup on Android, as it does on iOS. (WO-010)
 * [Changed] `start()`, `stop()`, `status()`, `scheduleTask()` and `stopTask()` return a `Promise`, as `@transistorsoft/background-fetch-types` declares: `start()` and `status()` resolve the `BackgroundFetchStatus`, the others `true`, and a failure rejects with what the native side sends. The success and failure callbacks still work and get what they got before. TypeScript code that types one of their results as `void`, or a test double for one of them that returns nothing (for example `() => {}`), no longer compiles. `stop(taskId)` now stops only that task: until now the taskId was taken for the success callback, so on Android every task was stopped and on iOS the call threw. `stopTask(taskId)` is deprecated in favour of `stop(taskId)`. A call with no callbacks that fails now rejects (iOS: `start()` with Background App Refresh off, `scheduleTask()` when iOS refuses the task), where it failed silently. (WO-009)
 * [Android] `scheduleTask()` no longer answers twice ("Invalid action", logged and dropped). (WO-009)
@@ -11,6 +11,10 @@
 * [iOS] Get TSBackgroundFetch from one package manager only.
   - On cordova-ios 8, don't combine this plugin with a plugin that still gets TSBackgroundFetch from CocoaPods (e.g. `cordova-background-geolocation-lt`) until that plugin also supports Swift Package Manager.
   - CocoaPods Trunk becomes read-only on 2026-12-02, so CocoaPods apps stay on TSBackgroundFetch 4.2.x after that date. (WO-001)
+* [iOS] If your app also uses `cordova-background-geolocation-lt`, stay on 7.3.1, pinned exactly (`"cordova-plugin-background-fetch": "7.3.1"` in your `package.json`): a `^7.3.1` range installs 7.4.0. (WO-001)
+  - cordova-ios 7 and older: TSLocationManager 4.8.3, the latest, requires TSBackgroundFetch 4.1.x, so CocoaPods cannot resolve both. Upgrade once a TSLocationManager that accepts TSBackgroundFetch 4.2 is out and your `cordova-background-geolocation-lt` accepts it (5.5.1 takes TSLocationManager 4.8.x only).
+  - cordova-ios 8: this plugin gets TSBackgroundFetch from Swift Package Manager, and `cordova-background-geolocation-lt` brings its own from CocoaPods, so the app would carry two. Upgrade once `cordova-background-geolocation-lt` supports Swift Package Manager.
+* Require `@transistorsoft/background-fetch-types` 1.0.1 or later. Its 1.0.0 throws `ReferenceError: BackgroundFetch is not defined` when a build loads the package at run time (esbuild, Vite, or Babel or SWC compiling TypeScript one file at a time).
 
 ## [7.3.1] &mdash; 2026-05-05
 * Fix Webpack/Angular build error `Module not found: Can't resolve 'cordova/exec'` by adding a `browser`-field shim in `package.json` that redirects the bare `cordova/exec` import to a thin proxy delegating to `window.cordova.exec` at runtime.  Pure-Cordova builds (no Webpack/static module resolution) are unaffected.

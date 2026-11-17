@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-background-fetch",
-  "version": "7.3.1",
+  "version": "7.4.0",
   "description": "A plugin to periodically awaken your app in the background every 15 minutes to perform some work.",
   "main": "./www/index.js",
   "browser": {
@@ -49,7 +49,7 @@
   },
   "author": "Chris Scott, Transistor Software <chris@transistorsoft.com>",
   "dependencies": {
-    "@transistorsoft/background-fetch-types": "^1.0.0"
+    "@transistorsoft/background-fetch-types": "^1.0.1"
   },
   "devDependencies": {
     "typescript": "~4.1.5"

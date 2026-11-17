@@ -63,6 +63,8 @@ Add this to your `config.xml`. cordova-ios defaults to 11.0 on 7.x and 13.0 on 8
 
 Get `TSBackgroundFetch` from one package manager only. On cordova-ios 8, don't combine this plugin with a plugin that still gets `TSBackgroundFetch` from CocoaPods (e.g. `cordova-background-geolocation-lt`) until that plugin also supports Swift Package Manager.
 
+If your app also uses `cordova-background-geolocation-lt`, stay on 7.3.1 for now, pinned exactly. With cordova-ios 7 and older, CocoaPods cannot resolve both until a TSLocationManager that accepts TSBackgroundFetch 4.2 is out and `cordova-background-geolocation-lt` accepts it: TSLocationManager 4.8.3, the latest, requires TSBackgroundFetch 4.1.x. With cordova-ios 8, wait until `cordova-background-geolocation-lt` supports Swift Package Manager, as above.
+
 #### :warning: *Cocoapods* >= `1.10.0` is required:
 ```console
 $ pod --version
